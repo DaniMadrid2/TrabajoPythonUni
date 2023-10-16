@@ -1,5 +1,5 @@
 from personaje import Personaje, Medico  # Importa las otras clases de personajes también
-
+from utils import comprobar_celda_disponible
 class Jugador:
     def __init__(self):
         self.oponente = None
@@ -27,7 +27,7 @@ class Jugador:
             while not posicion_valida:
                 posicion = input (f'Ingrese la posicion para {personaje.nombre}(Formato: 'A1','B2', etc):')
 
-                if not valida
+                if not validar
 
 
     def turno(self):
