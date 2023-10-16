@@ -13,6 +13,8 @@ def main():
     input('Turno del Jugador 2. Pulsa intro para comenzar')
     j2 = Jugador()
             #holll
+            #hola2
+    j3 = Jugador()
             
     input('Jugador 2, pulsa terminar tu turno')
     limpiar_terminal()
