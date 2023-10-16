@@ -16,7 +16,20 @@ def comprobar_celda_disponible(celda, equipo):
             print("Celda ocupada. Por favor, elija otra celda.")
             continue
 
-def validar_celda_contigua(celda1, celda2):
-    # Implementa la lógica de validación de celda contigua aquí
-    pass
+def convertir_a_coordenadas (celda):
+    #Convertir la celda en formato letra+numero a coordenadas (x,y).
+
+    fila = ord(celda[0]) - ord('A')
+    columna = int(celda[1:]) -1 
+
+    return fila, columna
+
+def validar_celda_contigua(celda1,celda2):
+    #Verifica si dos celdas son contiguas
+    fila1, columna1 = convertir_a_coordenadas(celda1)
+    fila2, columna2 = convertir_a_coordenadas(celda2)
+
+    return abs(fila1 - fila2) <= 1 and abs(columna1-columna2) <= 1 and (fila1,columna1) != (fila2,columna2)
+
+
 

@@ -2,13 +2,13 @@ from utils import comprobar_celda_disponible,validar_celda
 from direccion import Direccion
 
 class Personaje:
-    def __init__(self, vida_maxima, danyo, posicion):
+    def __init__(self,nombre, vida_maxima, danyo, posicion):
         self.vida_maxima = vida_maxima
         self.vida_actual = vida_maxima
         self.danyo = danyo
         self.posicion = posicion #Ej: "c2"
         self.enfriamiento_restante = 0
-        self.nombre="personaje"
+        self.nombre= nombre
         self.equipo = []
 
     def mover(self, dir):
