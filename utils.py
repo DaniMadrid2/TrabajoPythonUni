@@ -10,11 +10,14 @@ def validar_celda(celda="a2", max_col= 'D', max_row= 4):
     return valido
 
 
-def comprobar_celda_disponible(celda, equipo):
-     for p in equipo:
+def comprobar_celda_ocupada(celda, equipo):
+     
+    for p in equipo:
          if(p.posicion == celda ):
-            print("Celda ocupada. Por favor, elija otra celda.")
-            continue
+           return True
+
+    return False
+         
 
 def convertir_a_coordenadas (celda):
     #Convertir la celda en formato letra+numero a coordenadas (x,y).

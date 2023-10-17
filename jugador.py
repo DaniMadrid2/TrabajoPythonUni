@@ -1,8 +1,9 @@
-from personaje import Personaje, Medico  # Importa las otras clases de personajes también
-from utils import validar_celda, comprobar_celda_disponible
+from personaje import Personaje, Medico, Inteligencia, Artillero, Francotirador  # Importa las otras clases de personajes también
+from utils import validar_celda, comprobar_celda_ocupada
 class Jugador:
     def __init__(self):
         self.oponente = None
+        self.listapersonajes = [Medico,Artillero,Francotirador,Inteligencia]
         self.equipo = self.crear_equipo()
         self.informe = ""
 
@@ -14,7 +15,7 @@ class Jugador:
     def mostrar_estado_equipo(self):
         print("---SITUACION DEL EQUIPO---")
         for personaje in self.equipo:
-            print(f"{personaje.nombre} esta en {personaje.posicion} [VIDA {personaje.vida_actual}/{personaje.vida_max}]")
+            print(f"{personaje.nombre} esta en {personaje.posicion} [VIDA {personaje.vida_actual}/{personaje.vida_maxima}]")
     
     def mostrar_acciones(self):
             print("1: Mover (Medico)")    
@@ -26,19 +27,11 @@ class Jugador:
             print("7: Revelar a los enemigos en un área 2x2. (Inteligencia)")
     
     def elegir_accion(self, accion):
-        pass
-
-    # def preguntarPersonaje(clase):
-    #     input("Introduce la posición de tu ")
-
-    # def anyadirPersonaje(self,personaje):
-    #     self.equipo.append(personaje)
-    #     pass
+        input("Selecciona la acción de este turno:")
 
     def crear_equipo(self):
         self.equipo=[]
         self.posicionar_equipo()
-
         return self.equipo
 
     def posicionar_equipo(self):
@@ -48,20 +41,21 @@ class Jugador:
         for i in range(personajes_a_posicionar):
             posicion_valida = False
             while not posicion_valida:
-                posicion = input(f"Ingrese la posicion para el personaje {i+1},(Formato: 'A1','B2', etc):")
+                posicion = input(f"Indica la celda (A-D,1-4) en la que posicionar al {self.listapersonajes[i]().nombre}:")
 
                 if not validar_celda(posicion):
-                    print('Celda incorrecta. Porfavor, elija otra celda')
+                    print('Ups... valor de celda incorrecto.')
                     continue
 
-                if not comprobar_celda_disponible(posicion,self.equipo):
-                    print('Celda ocupado.Porfavor elije otra celda')
+                if comprobar_celda_ocupada(posicion,self.equipo):
+                    print('Ups... la celda ya está ocupada!')
                     continue
-                personaje = self.crear_personaje (posicion,i+1)
+                personaje = self.crear_personaje (posicion,self.listapersonajes[i])
                 self.equipo.append(personaje)
                 posicion_valida = True
 
-        input('Jugador 1, pulsa INTRO para terminar tu turno')
+    def crear_personaje(self,posicion , clase):
+        return clase(posicion)
 
     def turno(self):
         # Implementa la lógica del turno aquí
@@ -75,13 +69,20 @@ class Jugador:
         # Implementa la lógica para realizar una acción aquí
         pass
 
-    def recibir_accion(self, accion):
-        # Implementa la lógica para recibir una acción aquí
+    def resultado_accion(self, accion):
         pass
 
+    def imprimir_informe_accion(self):
+        print("---RESULTADO DE LA ACCION---")
+
+    def set_oponente (self,jugador):
+        self.oponente = jugador
+
     def turno(self):
-        self.mostrar_informe()
         self.mostrar_estado_equipo()
+        self.mostrar_acciones
         accion = self.elegir_accion()
         resultado = self.realizar_accion(accion)
+        self.imprimir_informe_accion()
+        self.mostrar_informe()
         return resultado  # Puedes hacer que esto devuelva información sobre el estado del juego, por ejemplo, si el juego ha terminado.
