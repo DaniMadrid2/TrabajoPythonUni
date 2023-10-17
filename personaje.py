@@ -1,5 +1,4 @@
 from utils import comprobar_celda_disponible,validar_celda
-from direccion import Direccion
 
 class Personaje:
     def __init__(self,nombre, vida_maxima, danyo, posicion):
@@ -54,3 +53,5 @@ class Francotirador(Personaje):
     def habilidad(self):
         
         pass
+
+

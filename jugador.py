@@ -5,7 +5,6 @@ class Jugador:
         self.oponente = None
         self.equipo = self.crear_equipo()
         self.informe = ""
-        self.nombre = nombre
 
     def mostrar_informe(self):
         print ("---INFORME---")
@@ -37,10 +36,10 @@ class Jugador:
     #     pass
 
     def crear_equipo(self):
-        equipo=[]
+        self.equipo=[]
+        self.posicionar_equipo()
 
-
-        return equipo
+        return self.equipo
 
     def posicionar_equipo(self):
         # Implementa la lógica de posicionamiento inicial aquí
