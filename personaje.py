@@ -13,11 +13,7 @@ class Personaje:
     def mover(self, dir):
         # Implementa la lógica de movimiento aquí
         
-        pos2=self.posicion
-        if(dir.dx!=0):
-            pos2[0]=chr(int(pos2[0])+dir.dx)
-        if(dir.dy!=0):
-            pos2[1]=chr(int(pos2[1])+dir.dy)
+        
         
         if(validar_celda(pos2),comprobar_celda_ocupada(pos2)):
             self.pos=pos2
@@ -27,6 +23,18 @@ class Personaje:
     def habilidad(self):
         # Implementa la habilidad especial de cada personaje aquí
         pass
+    
+    def esta_en_area(self, posicion):
+        for dx in range(2):
+            for dy in range(2):
+                pos2=self.posicion
+                if(dx!=0):
+                    pos2[0]=chr(int(pos2[0])+dx)
+                if(dy!=0):
+                    pos2[1]=chr(int(pos2[1])+dy)
+                if(pos2==posicion):
+                    return True
+        
 
 class Medico(Personaje):
     def __init__(self, posicion="A1"):
