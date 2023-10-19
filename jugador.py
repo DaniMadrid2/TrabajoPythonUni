@@ -26,8 +26,26 @@ class Jugador:
             print("6: Mover (Inteligencia)")
             print("7: Revelar a los enemigos en un área 2x2. (Inteligencia)")
     
+    def coger_personaje(self,clase,equipo=self.equipo):
+        for p in equipo:
+            if(p.name is clase):
+                return p
+        return None
+    
+    def mover_tropa(self,clase,posicion):
+        tropa=self.coger_personaje(clase)
+        if(not comprobar_celda_ocupada(posicion,self.equipo)):
+            tropa.posicion=posicion
+            
+    def ser_disparado_area(self,ataque=1,posicion="A1"):
+        for p in self.equipo:
+            if(p.esta_en_area(posicion)):
+                p.herir(ataque)
+        
+    
     def elegir_accion(self, accion):
-        input("Selecciona la acción de este turno:")
+        accion=input("Selecciona la acción de este turno:")
+        
 
     def crear_equipo(self):
         self.equipo=[]
@@ -72,7 +90,7 @@ class Jugador:
 
     def turno(self):
         self.mostrar_estado_equipo()
-        self.mostrar_acciones
+        self.mostrar_acciones()
         accion = self.elegir_accion()
         resultado = self.realizar_accion(accion)
         self.imprimir_informe_accion()
