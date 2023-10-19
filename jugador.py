@@ -57,14 +57,6 @@ class Jugador:
     def crear_personaje(self,posicion , clase):
         return clase(posicion)
 
-    def turno(self):
-        # Implementa la lógica del turno aquí
-        self.mostrar_informe()
-        self.mostrar_estado_equipo()
-        accion = self.elegir_accion()
-        resultado = self.realizar_accion()
-        return resultado #Devuelve informacion sobre el estado del juego.
-
     def realizar_accion(self):
         # Implementa la lógica para realizar una acción aquí
         pass
