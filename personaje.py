@@ -10,31 +10,30 @@ class Personaje:
         self.nombre= nombre
         self.equipo = []
 
-    def mover(self, dir):
+    def mover(self, pos):
         # Implementa la lógica de movimiento aquí
-        
-        
-        
-        if(validar_celda(pos2),comprobar_celda_ocupada(pos2)):
-            self.pos=pos2
+        if(validar_celda(pos) and not comprobar_celda_ocupada(pos, self.equipo)):
+            self.posicion=pos
             
         pass
+
+    def herir(self, danio):
+        self.vida_actual
 
     def habilidad(self):
         # Implementa la habilidad especial de cada personaje aquí
         pass
     
+
+            
     def esta_en_area(self, posicion):
-        for dx in range(2):
-            for dy in range(2):
-                pos2=self.posicion
-                if(dx!=0):
-                    pos2[0]=chr(int(pos2[0])+dx)
-                if(dy!=0):
-                    pos2[1]=chr(int(pos2[1])+dy)
-                if(pos2==posicion):
+        for dx in range(2):  # Check positions right and current column
+            for dy in range(2):  # Check positions up and current row
+                col = chr(ord(self.posicion[0]) + dx)
+                row = chr(ord(self.posicion[1]) + dy)
+                if col + row == posicion:
                     return True
-        
+        return False
 
 class Medico(Personaje):
     def __init__(self, posicion="A1"):
