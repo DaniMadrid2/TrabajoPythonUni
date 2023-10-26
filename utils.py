@@ -9,8 +9,8 @@ def validar_celda(celda="a2", max_col= 'D', max_row= 4):
     valido = 'A' <= col<= max_col and '1'<= row <= str(max_row)
     return valido
 
-
 def comprobar_celda_ocupada(celda, equipo):
+    #Comprueba si una celda esta ocupada
      
     for p in equipo:
          if(p.posicion == celda ):
@@ -18,7 +18,6 @@ def comprobar_celda_ocupada(celda, equipo):
 
     return False
          
-
 def convertir_a_coordenadas (celda):
     #Convertir la celda en formato letra+numero a coordenadas (x,y).
 
@@ -33,6 +32,8 @@ def validar_celda_contigua(celda1,celda2):
     fila2, columna2 = convertir_a_coordenadas(celda2)
 
     return abs(fila1 - fila2) <= 1 and abs(columna1-columna2) <= 1 and (fila1,columna1) != (fila2,columna2)
+
+
 
 
 

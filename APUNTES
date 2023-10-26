@@ -1,8 +1,5 @@
 Angel : 
-Crear acciones y hacer funciones para llevarlas a cabo y que lo elija el jugador  
-
-
-
+Fin partida y mostar informe
 
         HECHO: Introduccion turno.
 
@@ -11,3 +8,4 @@ Daniel:
 
 
         HECHO: 
+
