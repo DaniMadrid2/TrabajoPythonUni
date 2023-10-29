@@ -5,13 +5,13 @@ from jugador import Jugador
 def main():
     print('Bienvenidos a Tactical Battle. A jugar!\n')
     input('Turno del Jugador 1. Pulsa intro para comenzar')
-    j1 = Jugador(True)
+    j1 = Jugador()
 
     input('Jugador 1, pulsa terminar tu turno')
     limpiar_terminal()
 
     input('Turno del Jugador 2. Pulsa intro para comenzar')
-    j2 = Jugador(True)
+    j2 = Jugador()
             
     input('Jugador 2, pulsa terminar tu turno')
     limpiar_terminal()
