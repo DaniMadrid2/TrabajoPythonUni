@@ -57,7 +57,6 @@ class Medico(Personaje):
         tmpi=1
         for personaje in equipo:
             if(personaje != self and personaje.vida_actual<personaje.vida_maxima and personaje.vida_actual>0):
-                print(f"{tmpi}: {personaje.nombre} [{personaje.vida_actual}/{personaje.vida_maxima}]")
                 personajes_heridos.append(personaje)
                 tmpi=tmpi+1
         return personajes_heridos
@@ -70,10 +69,19 @@ class Medico(Personaje):
     def habilidad(self,equipo):
         super().habilidad()
         personajes_heridos=self.coger_personajes_heridos(equipo)
+        tmpi=1
+        for personaje in personajes_heridos:
+            print(f"{tmpi}: {personaje.nombre} [{personaje.vida_actual}/{personaje.vida_maxima}]")
+            tmpi+=1
         tmpi=-1
-        while(tmpi>len(personajes_heridos) and tmpi<1):
-            tmpi=input('Selecciona el personaje a curar: ')
-        personaje_a_curar = personajes_heridos[tmpi]
+        while(tmpi>len(personajes_heridos) or tmpi<1):
+            try:
+                tmpi=int(input('Selecciona el personaje a curar: '))
+            except KeyboardInterrupt:
+                break
+            except:
+                a=2
+        personaje_a_curar = personajes_heridos[tmpi-1]
         
         personaje_a_curar.vida_actual = personaje_a_curar.vida_maxima
         return "M"+ (personaje_a_curar.posicion)
