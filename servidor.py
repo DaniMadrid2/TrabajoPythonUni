@@ -21,7 +21,7 @@ class Servidor:
         self.lock = threading.lock()
 
     def cliente_administrar(self,sock_cliente):
-        datos = server.recv(1024)
+        datos = self.server.recv(1024)
         if not datos:
             return 
         nombre = datos.decode()
