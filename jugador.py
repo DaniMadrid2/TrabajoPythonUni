@@ -242,7 +242,9 @@ class Jugador:
         self.mostrar_estado_equipo()
         acciones=self.mostrar_acciones()
         accion = self.elegir_accion(acciones)
-        resultado = self.realizar_accion(accion)
+        return self.realizar_accion(accion)
+    
+    def recibir_accion(self,resultado):
         resultado_informe = self.oponente.recibir_accion(resultado)
         self.pasar_turno_equipo()
         self.mostrar_resultado_accion(resultado_informe)
