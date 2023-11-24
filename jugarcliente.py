@@ -1,9 +1,12 @@
 from utils import limpiar_terminal
 from jugador import Jugador
-
+import socket
 
 def main():
-    servidor=conectConServidor()
+    host = socket.gethostname()
+    cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    cliente.connect(host,port)
+
     nombre2=esperarConexion()
     empezar(nombre2)
     pass
