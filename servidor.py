@@ -7,6 +7,12 @@ class Cliente:
         self.nombre = nombre
         self.sock = sock
 
+    def ready(self):
+        fin = False
+
+        while not fin:
+            datos = self.sock.recv(1024)
+            fin = datos == 'Preparado'
 
 
 

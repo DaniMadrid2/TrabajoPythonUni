@@ -7,48 +7,48 @@ def main():
     cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     cliente.connect(host,port)
 
-    nombre2=esperarConexion()
-    empezar(nombre2)
-    pass
+    nombre = input('Introduce tu nombre')
+
+    cliente.sendall(nombre.encode())
     
-def empezar(nombre2):
+    mensaje = cliente.recv(1024).decode()
+    if mensaje.startswith('Esperando'):
+        mensaje = cliente.recv(1024).decode()
+    print (mensaje)
+    nombre2 = mensaje.split("La partida va a comenzar. Te vas a enfrentar a ")[1]
+    mensaje = cliente.recv(1024).decode()
+
+    turno_1 = mensaje.startswith('Es tu turno')
+                                
+    empezar(nombre,turno_1,nombre2,cliente)
+
+
+
+    
+
+  
+    
+def empezar(nombre,es_turno,nombre2,cliente):
     print('Bienvenidos a Tactical Battle. A jugar!\n')
     input('Turno del Jugador 1. Pulsa intro para comenzar')
-    j1 = Jugador()
+    j1 = Jugador(cliente)
+
+    cliente.sendall('Preparado'.encode())
 
     input('Jugador 1, pulsa terminar tu turno')
     limpiar_terminal()
-    enviarEquipo()
-
-    j2=esperarEquipoContrincante()
             
-    input('Jugador 2, pulsa terminar tu turno')
-    limpiar_terminal()
-
-    j1.set_oponente(j2)
-    j2.set_oponente(j1)
-
     final = False
     while not final:
-        input('Turno del Jugador 1. Pulsa intro para comenzar')
-        final = j1.turno()
+        if(es_turno):
+            input('Es tu turno, pulsa intro para comenzar')
+            resultado = j1.turno()
+            cliente.sendall(resultado.encode())
+            
         
-        if final:
-            print("***** El jugador 1 ha ganado la partida! *****")
-            return 0
-
-        input('Jugador 1, pulsa intro para terminar tu turno')
-        limpiar_terminal()
-
-        print('Esperando turno oponente')
-        
-        final = EsperarTurnoOponente()
-        if final:
-            print("***** El jugador 2 ha ganado la partida! *****")
-            return 0
-
-        input('Jugador 2, pulsa intro para terminar tu turno')
-        limpiar_terminal()
+        else:
+            print('Es el turno del oponente, esperandoo...')
+            cliente.recv(1024).decode()
 
 
 if __name__ == '__main__':
