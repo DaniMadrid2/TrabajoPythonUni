@@ -79,8 +79,6 @@ class Medico(Personaje):
                 tmpi=int(input('Selecciona el personaje a curar: '))
             except KeyboardInterrupt:
                 break
-            except:
-                a=2
         personaje_a_curar = personajes_heridos[tmpi-1]
         
         personaje_a_curar.vida_actual = personaje_a_curar.vida_maxima
@@ -100,20 +98,22 @@ class Inteligencia(Personaje):
 class Artillero(Personaje):
     def __init__(self, posicion="A1"):
         super().__init__("Artillero",2,1,posicion)
-    def habilidad(self,oponente,esquina_superior_izquierda="A1"):
-        super().habilidad()
-        for p in oponente.equipo:
-            if(p.esta_en_area(esquina_superior_izquierda)):
-                p.herir(self.danyo)
+    #Ahora el herir está solo en el contrincante
+    # def habilidad(self,oponente,esquina_superior_izquierda="A1"):
+    #     super().habilidad()
+    #     for p in oponente.equipo:
+    #         if(p.esta_en_area(esquina_superior_izquierda)):
+    #             p.herir(self.danyo)
         
-        return 'A'+esquina_superior_izquierda
+    #     return 'A'+esquina_superior_izquierda
 
 class Francotirador(Personaje):
     def __init__(self, posicion="A1"):
         super().__init__("Francotirador",3,3,posicion)
-    def habilidad(self,oponente,celda="AI"):   
-        super().habilidad()
-        for p in oponente.equipo:
-            if(p.posicion == celda):
-                p.herir(self.danyo)
-        return 'F'+celda
+    #Ahora el herir está en el contrincante
+    # def habilidad(self,oponente,celda="AI"):   
+    #     super().habilidad()
+    #     for p in oponente.equipo:
+    #         if(p.posicion == celda):
+    #             p.herir(self.danyo)
+    #     return 'F'+celda

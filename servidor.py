@@ -1,23 +1,24 @@
 import socket 
 import threading
-import pickle
 from partida import Partida
 
 class Cliente:
     def __init__(self,sock,nombre):
         self.nombre = nombre
-        self.sock = sock
+        self.sock:socket.socket = sock
 
     def ready(self):
         fin = False
 
         while not fin:
-            datos = self.sock.recv(1024)
-            fin = datos == 'Preparado'
+            try:
+                datos = self.sock.recv(1024).decode()
+                fin = datos.startswith('Preparado')
+            except KeyboardInterrupt:
+                break
+    def close(self):
+        self.sock.close()
 
-
-
-# sock = server
 
 class Servidor:
 
@@ -28,7 +29,7 @@ class Servidor:
         self.lock = threading.Lock()
 
     def cliente_administrar(self,sock_cliente):
-        datos = self.server.recv(1024)
+        datos = sock_cliente.recv(1024)
         if not datos:
             return 
         nombre = datos.decode()
@@ -37,12 +38,13 @@ class Servidor:
         try: 
             if len(self.lobby) == 0:
                 self.lobby.append(cliente)
+                print('Enviamos esperando al otro cliente al cliente que espera en el lobby')
                 cliente.sock.sendall('Esperando al otro cliente'.encode())
             else:
                 cliente_dos = self.lobby[0]
                 self.lobby = []
                 partida = Partida(cliente,cliente_dos)
-                hilo_partida = threading.Thread(target = partida.jugar(), args = ())
+                hilo_partida = threading.Thread(target = partida.jugar, args = ())
                 hilo_partida.start()
         finally: 
             self.lock.release()
@@ -50,18 +52,18 @@ class Servidor:
     
     def start(self):
         self.server.listen()
+        print("servidor a la escucha")
         while True:
-            print("bucle")
             try:
                 cliente, direccion = self.server.accept()
+                print("se ha conectado un cliente ",direccion)
                 if cliente:
-                    print("Se crea un thread cliente_administrar")
                     hilo = threading.Thread(target = self.cliente_administrar, args=(cliente,))
                     hilo.start()
             except KeyboardInterrupt:
-                print("Se cierra el bucle")
+                print("Se ha cerrado el servidor")
                 self.server.close()
-                break
+                exit()
             # except:
             #     print("Ha habido un fallo en la conexión, cerrando")
 

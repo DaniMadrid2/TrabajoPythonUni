@@ -45,13 +45,6 @@ class Jugador:
             pos=self.pedir_posicion()
         return pos
     
-    def revelar_enemigos(self, esquina_superior_izquierda="A1"):
-        enemigos_revelados= []
-        for p in self.oponente.equipo:
-            if(p.esta_en_area(esquina_superior_izquierda)):
-                enemigos_revelados.append(p)
-        return enemigos_revelados
-    
     def validar_accion(self, accion, acciones_posibles):
         return accion>=1 and accion<=len(acciones_posibles)
     
@@ -119,15 +112,24 @@ class Jugador:
         elif(accion==2):
             self.mover_tropa(Artillero,("Indica la celda a la que mover al Artillero:")) 
         elif(accion==3):
-            return self.coger_personaje(Artillero,self.equipo).habilidad(self.oponente,self.pedir_posicion("Indica una casilla a la que disparar con el Artillero en un area 2x2 (Celda superior izquierda)"))#TODO cambiar texto al necesario
+            #TODO se activa en el enemigo
+            self.coger_personaje(Artillero,self.equipo).ha_usado_la_habilidad=True
+            return "A"+self.pedir_posicion("Indica una casilla a la que disparar con el Artillero en un area 2x2 (Celda superior izquierda)")
+            #AC1
         elif(accion==4):
             self.mover_tropa(Francotirador,("Indica la celda a la que mover al Francotirador:"))
         elif(accion==5):
-            return self.coger_personaje(Francotirador,self.equipo).habilidad(self.oponente,self.pedir_posicion("Indica una casilla a la que disparar con el Francotirador en un area 1x1:"))
+            #TODO se activa en el enemigo
+            self.coger_personaje(Francotirador,self.equipo).ha_usado_la_habilidad=True
+            return "F"+self.pedir_posicion("Indica una casilla a la que disparar con el Francotirador en un area 1x1:")
+            #FB2
         elif(accion==6):
             self.mover_tropa(Inteligencia,"Indica la celda a la que mover a la Inteligencia:")
         elif(accion==7):
-            return self.coger_personaje(Inteligencia,self.equipo).habilidad(self.pedir_posicion("Indica una posicion a la que revelar usando a la Inteligencia:"),self.oponente.equipo)
+            # return self.coger_personaje(Inteligencia,self.equipo).habilidad(self.pedir_posicion("Indica una posicion a la que revelar usando a la Inteligencia:"),self.oponente.equipo)
+            self.coger_personaje(Inteligencia,self.equipo).ha_usado_la_habilidad=True
+            return "I"+self.pedir_posicion("Indica una posicion a la que revelar usando a la Inteligencia:")
+        return "M" #Indica que la acción no tiene efecto
     
     def crear_equipo(self, default=False):
         self.equipo=[]
@@ -186,12 +188,16 @@ class Jugador:
         informacion = Informe()
         informacion.borar_informe()
         self.informe=informacion
-        if accion == None:
+        if accion == None or len(accion)!=3:
             return informacion
-        celda = str(accion[1]).upper()+accion[2]
+        try:
+            celda = str(accion[1]).upper()+accion[2]
+        except:
+            return
 
         if accion[0] == "F":
-            personaje_herido = self.coger_personaje_en_celda(celda,self.equipo)
+            personaje_herido: Personaje = self.coger_personaje_en_celda(celda,self.equipo)
+            personaje_herido.herir(Francotirador().danyo)
             if(personaje_herido.vida_actual > 0):
                 informacion.poner_info(f"{personaje_herido.nombre} ha sido herido en {celda} [Vida restante:{personaje_herido.vida_actual}]")
             else:
@@ -203,6 +209,7 @@ class Jugador:
                 if personaje.esta_en_area(celda):
                     hay_personaje_en_area=True
                     if accion[0] == "A":
+                        personaje.herir(Artillero().danyo)
                         if(personaje.vida_actual > 0):
                             informacion.poner_info(f"{personaje.nombre} ha sido herido en {celda} [Vida restante:{personaje.vida_actual}]") 
                         else:
@@ -220,15 +227,18 @@ class Jugador:
         return informacion
     
     def mostrar_resultado_accion(self, informe):
-        if(informe.hay_informe()):
+        if(informe and isinstance(informe,Informe) and informe.hay_informe()):
             print("---RESULTADO DE LA ACCION---")
             informe.escribir_informe()
-    def mostrar_informe(self):
-        print("---INFORME---")
-        if(self.informe.hay_informe()):
-            self.informe.escribir_informe()
         else:
-            print("Nada que reportar")
+            print("---NO HAY RESULTADOS DE LA ACCION---")
+    def mostrar_informe(self, informe):
+        if(informe and isinstance(informe,Informe) and informe.hay_informe()):
+            print("---INFORME---")
+            if(informe.hay_informe()):
+                informe.escribir_informe()
+            else:
+                print("Nada que reportar")
 
     def pasar_turno_equipo(self):
         for personaje in self.equipo:
@@ -238,7 +248,7 @@ class Jugador:
         self.oponente = jugador
 
     def turno(self):
-        self.mostrar_informe()
+        self.mostrar_informe(self.informe)
         self.mostrar_estado_equipo()
         acciones=self.mostrar_acciones()
         accion = self.elegir_accion(acciones)
