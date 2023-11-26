@@ -20,11 +20,11 @@ class Cliente:
 
 class Servidor:
 
-    def __init__(self,conexion):
+    def __init__(self,host, port):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind(host,port)
+        self.server.bind((host,port))
         self.lobby =[]
-        self.lock = threading.lock()
+        self.lock = threading.Lock()
 
     def cliente_administrar(self,sock_cliente):
         datos = self.server.recv(1024)
@@ -51,7 +51,7 @@ class Servidor:
         self.server.listen()
         while True:
             try:
-                cliente, direccion = self.sock.accept()
+                cliente, direccion = self.server.accept()
                 if cliente:
                     hilo = threading.Thread(target = self.cliente_administrar, arg = (cliente))
                     hilo.start()
@@ -59,10 +59,10 @@ class Servidor:
                 self.server.close()
                 break
 
-host = socket.gethostbyname()
+host = socket.gethostbyname("")
 port = 12345
 
-servidor = Server(host,port)
+servidor = Servidor(host,port)
 servidor.start()
 
 

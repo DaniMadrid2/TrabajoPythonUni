@@ -45,8 +45,10 @@ def empezar(nombre,es_turno,nombre2,cliente):
             input('Es tu turno, pulsa intro para comenzar')
             resultado = j1.turno()
             cliente.sendall(resultado.encode())
-            informe=#Recibir informe con pickle
+            #Recibir informe con pickle
+            informe=pickle.loads()
             cliente.recibir_turno(informe)
+            pickle.loads()
             
             final=informe.terminado
             if(final):
