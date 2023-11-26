@@ -248,4 +248,4 @@ class Jugador:
         resultado_informe = self.oponente.recibir_accion(resultado)
         self.pasar_turno_equipo()
         self.mostrar_resultado_accion(resultado_informe)
-        return resultado_informe.terminado #false si no se ha terminado el juego, true si se ha terminado el juego
+        return resultado_informe #false si no se ha terminado el juego, true si se ha terminado el juego

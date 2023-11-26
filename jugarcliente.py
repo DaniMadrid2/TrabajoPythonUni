@@ -1,6 +1,7 @@
 from utils import limpiar_terminal
 from jugador import Jugador
 import socket
+import pickle
 
 def main():
     host = socket.gethostname()
@@ -35,7 +36,7 @@ def empezar(nombre,es_turno,nombre2,cliente):
 
     cliente.sendall('Preparado'.encode())
 
-    input('Jugador 1, pulsa terminar tu turno')
+    input('Jugador 1, pulsa para terminar tu turno')
     limpiar_terminal()
             
     final = False
@@ -48,8 +49,10 @@ def empezar(nombre,es_turno,nombre2,cliente):
         
         else:
             print('Es el turno del oponente, esperandoo...')
-            cliente.recv(1024).decode()
-
+            accion=cliente.recv(1024).decode()
+            informe=j1.recibir_accion(accion)
+            #Enviar informe con pickle
+            
 
 if __name__ == '__main__':
     main()
