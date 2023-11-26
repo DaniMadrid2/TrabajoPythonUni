@@ -244,8 +244,7 @@ class Jugador:
         accion = self.elegir_accion(acciones)
         return self.realizar_accion(accion)
     
-    def recibir_accion(self,resultado):
-        resultado_informe = self.oponente.recibir_accion(resultado)
+    def recibir_turno(self,informe):
         self.pasar_turno_equipo()
-        self.mostrar_resultado_accion(resultado_informe)
-        return resultado_informe #false si no se ha terminado el juego, true si se ha terminado el juego
+        self.mostrar_resultado_accion(informe)
+        return informe #false si no se ha terminado el juego, true si se ha terminado el juego

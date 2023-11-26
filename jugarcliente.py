@@ -45,13 +45,22 @@ def empezar(nombre,es_turno,nombre2,cliente):
             input('Es tu turno, pulsa intro para comenzar')
             resultado = j1.turno()
             cliente.sendall(resultado.encode())
+            informe=#Recibir informe con pickle
+            cliente.recibir_turno(informe)
             
+            final=informe.terminado
+            if(final):
+                print('Ha ganado tu oponente')
         
         else:
             print('Es el turno del oponente, esperandoo...')
             accion=cliente.recv(1024).decode()
             informe=j1.recibir_accion(accion)
             #Enviar informe con pickle
+            
+            final=informe.terminado
+            if(final):
+                print('Felicidades, has ganado')
             
 
 if __name__ == '__main__':
