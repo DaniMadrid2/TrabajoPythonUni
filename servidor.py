@@ -1,6 +1,7 @@
 import socket 
 import threading
 import pickle
+from partida import Partida
 
 class Cliente:
     def __init__(self,sock,nombre):
@@ -50,16 +51,22 @@ class Servidor:
     def start(self):
         self.server.listen()
         while True:
+            print("bucle")
             try:
                 cliente, direccion = self.server.accept()
                 if cliente:
-                    hilo = threading.Thread(target = self.cliente_administrar, arg = (cliente))
+                    print("Se crea un thread cliente_administrar")
+                    hilo = threading.Thread(target = self.cliente_administrar, args=(cliente,))
                     hilo.start()
             except KeyboardInterrupt:
+                print("Se cierra el bucle")
                 self.server.close()
                 break
+            # except:
+            #     print("Ha habido un fallo en la conexión, cerrando")
 
-host = socket.gethostbyname("")
+# host = "127.0.0.1"
+host=socket.gethostname()
 port = 12345
 
 servidor = Servidor(host,port)

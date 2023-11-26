@@ -4,24 +4,32 @@ import socket
 import pickle
 
 def main():
-    host = socket.gethostname()
-    cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    cliente.connect(host,port)
+    try:
+        port=12345
+        host = socket.gethostname()
+        cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        cliente.connect((host,port))
 
-    nombre = input('Introduce tu nombre')
+        nombre = input('Introduce tu nombre\n')
 
-    cliente.sendall(nombre.encode())
-    
-    mensaje = cliente.recv(1024).decode()
-    if mensaje.startswith('Esperando'):
+        cliente.sendall(nombre.encode())
+        
         mensaje = cliente.recv(1024).decode()
-    print (mensaje)
-    nombre2 = mensaje.split("La partida va a comenzar. Te vas a enfrentar a ")[1]
-    mensaje = cliente.recv(1024).decode()
+        if mensaje.startswith('Esperando'):
+            mensaje = cliente.recv(1024).decode()
+        print (mensaje)
+        nombre2 = mensaje.split("La partida va a comenzar. Te vas a enfrentar a ")[1]
+        mensaje = cliente.recv(1024).decode()
 
-    turno_1 = mensaje.startswith('Es tu turno')
-                                
-    empezar(nombre,turno_1,nombre2,cliente)
+        turno_1 = mensaje.startswith('Es tu turno')
+                                    
+        empezar(nombre,turno_1,nombre2,cliente)
+    except KeyboardInterrupt:
+        print("Has parado la ejecución")
+    except:
+        print("No se ha podido conectar con el servidor")
+    finally:
+        cliente.close()
 
 
 
@@ -29,7 +37,7 @@ def main():
 
   
     
-def empezar(nombre,es_turno,nombre2,cliente):
+def empezar(nombre,es_turno,nombre2,cliente: socket.socket):
     print('Bienvenidos a Tactical Battle. A jugar!\n')
     input('Turno del Jugador 1. Pulsa intro para comenzar')
     j1 = Jugador(cliente)
@@ -46,9 +54,9 @@ def empezar(nombre,es_turno,nombre2,cliente):
             resultado = j1.turno()
             cliente.sendall(resultado.encode())
             #Recibir informe con pickle
-            informe=pickle.loads()
+            informe = cliente.recv(1024)
+            informe=pickle.loads(informe)
             cliente.recibir_turno(informe)
-            pickle.loads()
             
             final=informe.terminado
             if(final):
@@ -59,7 +67,7 @@ def empezar(nombre,es_turno,nombre2,cliente):
             accion=cliente.recv(1024).decode()
             informe=j1.recibir_accion(accion)
             #Enviar informe con pickle
-            
+            cliente.sendall(pickle.dumps(informe))
             final=informe.terminado
             if(final):
                 print('Felicidades, has ganado')
