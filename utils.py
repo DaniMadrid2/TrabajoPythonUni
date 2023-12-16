@@ -33,6 +33,14 @@ def validar_celda_contigua(celda1,celda2):
     
     return abs(fila1 - fila2) <= 1 and abs(columna1-columna2) <= 1 and (fila1,columna1) != (fila2,columna2)
 
+def pedir_string(texto=""):
+    str=""
+    while(not str):
+        try:
+            str = input('Introduce tu nombre\n')
+        except KeyboardInterrupt:
+            exit()
+    return str
 
 
 
