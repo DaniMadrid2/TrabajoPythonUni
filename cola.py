@@ -38,6 +38,24 @@ class Cola:
                 return True
             actual = actual.siguiente
         return False
+    
+    def quitar(self,validar):
+        if(not callable(validar)): #asegurarse que validar sea una función
+            return
+        anterior:Nodo = self.primero
+        actual:Nodo = self.primero.siguiente
+        if(validar(anterior)):
+            self.primero=actual
+            anterior.siguiente=None
+        
+        while actual:
+            try:
+                if validar(actual.valor):
+                    anterior.siguiente=actual.siguiente
+            finally:
+                anterior=actual
+                actual = actual.siguiente
+        return False
 
     def vacia(self):
         return self.primero is None

@@ -53,6 +53,8 @@ class Partida:
             for c in self.clientes:
                 c.sock.sendall(f'Se acabo la partida. El ganador es {self.clientes[self.cliente_activo].nombre}')
                 c.sock.close()
+        except ConnectionResetError:
+            exit()
         except KeyboardInterrupt:
             return
     def pasar_turno(self):
