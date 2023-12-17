@@ -44,6 +44,7 @@ class Servidor:
     def guardar_ranking(self,archivo):
         with open(archivo,'w') as file:
             file.write(self.ranking.to_string())
+            
     def cliente_administrar(self,sock_cliente):
         datos = sock_cliente.recv(1024)
         if not datos:
@@ -51,9 +52,9 @@ class Servidor:
         nombre = datos.decode()
         cliente = Cliente(sock_cliente,nombre)
         self.lock.acquire()
-        try: 
-            self.lobby.encolar(cliente)
-            while not self.lobby.esta_vacia() and self.partidas_activas < self.max_partidas:
+        self.lobby.encolar(cliente)
+        while not self.lobby.esta_vacia() and self.partidas_activas < self.max_partidas:
+                if 
                 cliente_uno = self.lobby.desencolar()
                 cliente_dos = self.lobby.desencolar()
                 if cliente_uno and cliente_dos:
@@ -67,6 +68,7 @@ class Servidor:
     def iniciar_partida(self,partida):
         self.partidas_activas += 1
         partida.jugar()
+        self.partidas_activas -=1 
 
     def start(self):
         self.server.listen()
@@ -74,7 +76,7 @@ class Servidor:
         while True:
             try:
                 cliente, direccion = self.server.accept()
-                print("se ha conectado un cliente ",direccion)
+                print("Se ha conectado un cliente ",direccion)
                 if cliente:
                     hilo = threading.Thread(target = self.cliente_administrar, args=(cliente,))
                     hilo.start()
