@@ -6,12 +6,16 @@ class Cola:
     def __init__(self):
         self.primero = None
         self.ultimo = None
+        self.longitud = 0
+        
+    
     
     def encolar(self,valor):
         nuevo_nodo = Nodo(valor)
         if self.ultimo:
             self.ultimo.siguiente = nuevo_nodo
-        self.ultimo = nuevo_nodo
+        self.ultimo = nuevo_nodo 
+        self.longitud += 1
 
         if not self.primero:
             self.primero = nuevo_nodo
@@ -21,24 +25,21 @@ class Cola:
             return None
         valor = self.primero.valor
         self.primero = self.primero.siguiente
+        self.longitud -= 1
+        
         if not self.primero:
             self.ultimo = None
         return valor
 
-    def buscar(Self,valor):
+    def buscar(self,valor):
         actual = self.primero
         while actual:
             if actual.valor == valor:
                 return True
             actual = actual.siguiente
-        return Flase
+        return False
 
     def vacia(self):
         return self.primero is None
 
-if __name__ == "__main__":
-    cola = Cola()
-    cola.encolar(2)
-    cola.encolar(5)
 
-    print(cola.desencolar())
