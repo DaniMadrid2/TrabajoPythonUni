@@ -116,4 +116,4 @@ class Francotirador(Personaje):
     #     for p in oponente.equipo:
     #         if(p.posicion == celda):
     #             p.herir(self.danyo)
-    #     return 'F'+celda
+    #     return 'F'+celda  
