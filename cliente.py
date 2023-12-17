@@ -16,11 +16,7 @@ def ConectarCliente(puerto=DEFAULT_PORT, host=DEFAULT_HOST):
     cliente.settimeout(70.0) #Añadimos un timeout de minuto y 10 segundos
     try:
         cliente.connect((host,puerto))
-    except ConnectionError :
-        cliente.close()
-        print("no se pudo conectar con el servidor, tiempo de espera excedido")
-        exit()
-    except TimeoutError :
+    except (ConnectionError, TimeoutError) :
         cliente.close()
         print("no se pudo conectar con el servidor, tiempo de espera excedido")
         exit()
@@ -62,7 +58,7 @@ def RecibirEmpezamos(cliente:socket.socket):
 def EsperarComienzoPartida(cliente:socket.socket):
     empezamos=False
     while(not empezamos):
-        empezamos=RecibirEmpezamos()
+        empezamos=RecibirEmpezamos(cliente)
 
 
 
@@ -75,7 +71,7 @@ def BuclePrincipal(jugador:Jugador,cliente:socket.socket,es_turno:bool, nombre:s
             input('Es tu turno, pulsa intro para comenzar')
             resultado = jugador.turno()
             cliente.sendall(resultado.encode())
-            #if(not resultado): resultado="M"
+            if(not resultado): resultado="M"
                 
             #Recibir informe con pickle
             try:
@@ -133,6 +129,8 @@ def main():
     #Esperando 
     mensaje_recibido_contrincante: str = EsperarConexionContrincante(nombre,cliente)
     nombre_contrincante: str = CogerNombreContrincante(mensaje_recibido_contrincante)
+    print("Tu contrincante es: "+nombre_contrincante)
+    
     
     #Comenzar Partida
     es_turno:bool = RecibirEsTurno(cliente)
