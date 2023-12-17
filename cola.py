@@ -43,6 +43,10 @@ class Cola:
         if(not callable(validar)): #asegurarse que validar sea una función
             return
         anterior:Nodo = self.primero
+        if(self.longitud<=1):
+            self.primero=None
+            self.ultimo=None
+            return
         actual:Nodo = self.primero.siguiente
         if(validar(anterior)):
             self.primero=actual

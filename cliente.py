@@ -17,7 +17,7 @@ def ConectarCliente(puerto=DEFAULT_PORT, host=DEFAULT_HOST):
     try:
         cliente.connect((host,puerto))
     except (ConnectionError, TimeoutError) :
-        cliente.close()
+        CerrarConexion(cliente)
         print("no se pudo conectar con el servidor, tiempo de espera excedido")
         exit()
     return cliente
@@ -88,6 +88,7 @@ def BuclePrincipal(jugador:Jugador,cliente:socket.socket,es_turno:bool, nombre:s
                 print("Tiempo de espera excedido, cierre automático de la partida")
                 exit()
             except KeyboardInterrupt:
+                CerrarConexion(cliente)
                 break
         
         else:
@@ -100,11 +101,11 @@ def BuclePrincipal(jugador:Jugador,cliente:socket.socket,es_turno:bool, nombre:s
                         accion=accion.decode()
                 except KeyboardInterrupt:
                     print('se cerró la ejecución')
-                    cliente.close()
-                    exit()
+                    CerrarConexion(cliente)
                 except TimeoutError :
                     print("Tiempo de espera excedido, cierre automático de la partida")
                     tiempo_de_espera_excedido=True
+                finally:
                     exit()
                     
             if( not tiempo_de_espera_excedido):
@@ -151,7 +152,7 @@ def main():
     BuclePrincipal(j1,cliente,es_turno,nombre,nombre_contrincante)
         
     print("se cerró el cliente")
-    cliente.close()
+    CerrarConexion(cliente)
     
     
 

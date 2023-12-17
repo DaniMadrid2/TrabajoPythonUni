@@ -34,6 +34,7 @@ class Servidor:
         self.partidas_activas = 0
         self.max_partidas = max_partidas
         self.ranking = ListaDoblementeEnlazada()
+        self.running = True
         self.cargar_ranking(archivo_ranking)
 
     def cargar_ranking(self, archivo):
@@ -52,7 +53,7 @@ class Servidor:
             
     #Entre la lista de Clientes, quita al que tenga el mismo socket que sock_cliente
     def quitar_cliente(self,sock_cliente):
-        self.lobby.quitar((lambda cliente : cliente.sock==sock_cliente))
+        self.lobby.quitar((lambda cliente : cliente.valor.sock==sock_cliente))
         
     #Recibe el nombre y encola al cliente
     def recibir_y_encolar_cliente(self,sock_cliente):
@@ -75,6 +76,15 @@ class Servidor:
                 partida = Partida(cliente_uno, cliente_dos)
                 hilo_partida = threading.Thread (target = self.iniciar_partida, args = (partida,))
                 hilo_partida.start()
+                
+        except (ConnectionError, TimeoutError):
+            print("Se ha eliminado un cliente")
+            self.quitar_cliente(cliente_uno)
+            self.quitar_cliente(cliente_dos)
+            if(hilo_partida.is_alive()):
+                self.partidas_activas-=1
+                
+            exit()
         finally:
             self.lock.release()
     
@@ -87,25 +97,26 @@ class Servidor:
 
 
     def escuchar_clientes(self):
-        while True:
+        cliente=False
+        while self.running:
+            self.server.settimeout(10)
             try:
                 cliente, direccion = self.server.accept()
                 print("Se ha conectado un cliente ",direccion)
-                
+                self.server.settimeout(None)
                 if cliente:
                     self.recibir_y_encolar_cliente(cliente)
                         
-            except (ConnectionError, TimeoutError):
-                print("Se ha eliminado un cliente")
-                self.quitar_cliente(cliente)
+            except (ConnectionError, TimeoutError,socket.error):
+                a=2 #evitar el error timeout
                 
             except KeyboardInterrupt:
                 print("Se ha cerrado el servidor")
                 self.server.close()
-                exit()
-                
+                self.running=False
+        print("Se ha parado el bucle escuchar clientes")
     def bucle_empezar_partidas(self):
-        while True:
+        while self.running:
             try:
                 if self.hay_partida_y_dos_jugadores():
                     self.crear_partida()
@@ -113,15 +124,24 @@ class Servidor:
             except KeyboardInterrupt:
                 print("Se ha cerrado el servidor")
                 self.server.close()
+                self.running=False
                 exit()
-
+        print("Se ha parado el bucle empezar partidas")
     def start(self):
         self.server.listen()
         print("servidor a la escucha")
         hilo_escuchar_clientes = threading.Thread (target = self.escuchar_clientes, args = ())
-        hilo_escuchar_clientes.start()
         hilo_empezar_partidas = threading.Thread (target = self.bucle_empezar_partidas, args = ())
-        hilo_empezar_partidas.start()
+        try:
+            hilo_escuchar_clientes.start()
+            hilo_empezar_partidas.start()
+            while self.running:
+                a=2 #Cualquier línea, para que no se cierre la ejecución
+        except KeyboardInterrupt:
+            print("Cerrando servidor...")
+            self.running = False  # Indicar a los hilos que terminen
+            hilo_escuchar_clientes.join()
+            hilo_empezar_partidas.join()
 
 # host = "127.0.0.1"
 host=socket.gethostname()

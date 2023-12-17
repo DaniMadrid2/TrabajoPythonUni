@@ -9,7 +9,7 @@ class Partida:
         self.cliente_activo = 0
     
 
-    def jugar(self):
+    def jugar(self, fin_partida):
         try:
             self.clientes[0].sock.sendall(f"La partida va a comenzar. Te vas a enfrentar a {self.clientes[1].nombre}".encode())
             self.clientes[1].sock.sendall(f"La partida va a comenzar. Te vas a enfrentar a {self.clientes[0].nombre}".encode())
@@ -53,9 +53,14 @@ class Partida:
             for c in self.clientes:
                 c.sock.sendall(f'Se acabo la partida. El ganador es {self.clientes[self.cliente_activo].nombre}')
                 c.sock.close()
-        except ConnectionResetError:
+        except (ConnectionError, TimeoutError, ConnectionResetError):
+            if(fin_partida):
+                fin_partida()
+                print("Se ha terminado la conexión de un cliente, o la partida inesperadamente")
             exit()
         except KeyboardInterrupt:
+            if(fin_partida):
+                fin_partida()
             return
     def pasar_turno(self):
         self.cliente_activo=int(not self.cliente_activo)
