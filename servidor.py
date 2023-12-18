@@ -11,8 +11,18 @@ class Cliente:
 
     def close(self):
         self.sock.close()
+        
+    def ready(self):
+        fin = False
 
-
+        while not fin:
+            try:
+                datos = self.sock.recv(1024).decode()
+                fin = datos.startswith('Preparado')
+            except KeyboardInterrupt:
+                break
+            except ConnectionResetError:
+                exit()
 class Servidor:
 
     def __init__(self,host, port, max_partidas):
@@ -25,8 +35,6 @@ class Servidor:
         self.ranking = ListaDoblementeEnlazada()
         self.running = True
         self.cargar_ranking(archivo_ranking)
-
-
             
     #Entre la lista de Clientes, quita al que tenga el mismo socket que sock_cliente
     def quitar_cliente(self,sock_cliente):
@@ -66,12 +74,9 @@ class Servidor:
             self.lock.release()
     
     def iniciar_partida(self,partida:Partida):
-        print("Partidas +1") #LINK - QUITARLO                   
         self.partidas_activas += 1
         partida.jugar(partida.finalizar_partida)
         self.partidas_activas -=1 
-        print("Partidas -1")
-
 
     def escuchar_clientes(self):
         cliente=False
@@ -92,6 +97,7 @@ class Servidor:
                 self.server.close()
                 self.running=False
         print("Se ha parado el bucle escuchar clientes")
+        
     def bucle_empezar_partidas(self):
         while self.running:
             try:
@@ -104,6 +110,7 @@ class Servidor:
                 self.running=False
                 exit()
         print("Se ha parado el bucle empezar partidas")
+        
     def start(self):
         self.server.listen()
         print("Servidor a la escucha")
@@ -129,16 +136,16 @@ class Servidor:
                     self.ranking.insertar_ordenado(nombre,int(puntuacion))
         except FileNotFoundError:
             print("Archivo de ranking no encontrado. Se iniciara un nuevo ranking.")
+            
     def guardar_ranking(self,archivo):
         archivo = 'archivo_ranking.txt'
         with open(archivo,'w') as file:
             file.write(self.ranking.to_string())
-
             
 # host = "127.0.0.1"
 host=socket.gethostname()
 port = 12345
-max_partidas = int(input("Indica el máximo de partidas del servidor ")) or 2
+max_partidas = int(input("Indica el máximo de partidas del servidor:")) or 2
 archivo_ranking = "ranking.txt"
 servidor = Servidor(host,port,max_partidas)
 servidor.start()

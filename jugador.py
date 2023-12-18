@@ -1,6 +1,7 @@
 from personaje import Personaje, Medico, Inteligencia, Artillero, Francotirador  # Importa las otras clases de personajes también
 from utils import validar_celda, comprobar_celda_ocupada, validar_celda_contigua
 from informe import Informe
+
 class Jugador:
     def __init__(self, default=False):
         self.oponente = None
@@ -14,8 +15,10 @@ class Jugador:
         print("---SITUACION DEL EQUIPO---")
         for personaje in self.equipo:
             print(f"{personaje.nombre} esta en {personaje.posicion} [VIDA {personaje.vida_actual}/{personaje.vida_maxima}]")
+            
     def registro_elimininacion(self):
         self.enemigos_eliminados += 1
+        
     def esta_vivo(self,personaje):
         return personaje.vida_actual >0
         
@@ -24,7 +27,6 @@ class Jugador:
     def num_personajes_enemigos_eliminados(self):
         return self.informe.enemigos_eliminados
 
-                
     def coger_personaje(self,clase,equipo):
         for p in equipo:
             if(p.nombre == clase().nombre):
@@ -55,7 +57,6 @@ class Jugador:
     
     def validar_accion(self, accion, acciones_posibles):
         return accion>=1 and accion<=len(acciones_posibles)
-    
     
     def esta_vivo(self, clase):
         for personaje in self.equipo:

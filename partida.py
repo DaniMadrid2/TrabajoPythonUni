@@ -13,21 +13,18 @@ class JugadorPartida:
         self.sock:socket.socket=sock
         
     #callback que espera a recibir Preparado cuando un cliente termina de elegir su equipo
+
     def ready(self):
         fin = False
 
         while not fin:
             try:
-                print("Escuchando preparado") #LINK - 
                 datos = self.sock.recv(1024).decode()
-                print("Se ha escuchado ",datos) #LINK - 
                 fin = datos.startswith('Preparado')
             except KeyboardInterrupt:
                 break
             except ConnectionResetError:
                 exit()
-        
-
 class Partida:
     def __init__(self,cliente,cliente_dos,servidor):
         self.clientes= (JugadorPartida(cliente.sock,cliente.nombre,NUM_PERSONAJES_INICIO)
@@ -36,19 +33,16 @@ class Partida:
         self.num_turnos = 0
         self.servidor = servidor
         
-        
-    
 
     def jugar(self, fin_partida):
         try:
             self.clientes[0].sock.sendall(f"La partida va a comenzar. Te vas a enfrentar a {self.clientes[1].nombre}".encode())
             self.clientes[1].sock.sendall(f"La partida va a comenzar. Te vas a enfrentar a {self.clientes[0].nombre}".encode())
-            print('Comenzamos la partida, se han enviado textos')
+            print('COMENZAMOS LA PARTIDA')
             self.cliente_activo = random.randint(0,1)
             
             self.clientes[self.cliente_activo].sock.sendall('Es tu turno'.encode())
-            self.clientes[int(not self.cliente_activo)].sock.sendall('No tu turno'.encode())
-            self.clientes[0].sock.recv(1024).decode()
+            self.clientes[int(not self.cliente_activo)].sock.sendall('No es tu turno'.encode())
             prep1 = threading.Thread(target=self.clientes[0].ready, args=())
             prep2 = threading.Thread(target=self.clientes[1].ready, args=())
             prep1.start()
@@ -61,8 +55,6 @@ class Partida:
             self.clientes[self.cliente_activo].sock.sendall('Empezamos'.encode())
             self.clientes[int(not self.cliente_activo)].sock.sendall('Empezamos'.encode())
             
-            
-            self.n_personajes_vivos=(4,4) #número de personajes vivos de cada jugador
             self.num_turnos = 0
             while not fin:
                 try:
@@ -78,23 +70,19 @@ class Partida:
                             fin = resultado.terminado
                             n_muertos=self.contar_muertos_en_informe(resultado)
                             self.clientes[int(not self.cliente_activo)].n_personajes_vivos-=n_muertos
-                            
-                            print("Personajes vivos",self.n_personajes_vivos) #LINK - 
-                            
-                            if(self.n_personajes_vivos[int(not self.cliente_activo)]<0):
-                                print("El número de personajes vivos es menor que 0!")
+    
                     if not fin:
                         self.pasar_turno()
                         self.num_turnos += 1 
                 except KeyboardInterrupt:
                     self.clientes[0].close()
                     self.clientes[1].close()
-                    print("se cerró la partida (no el sevidor)")
+                    print("Se cerró la partida (no el sevidor)")
                     return
 
 
             for c in self.clientes:
-                c.sock.sendall(f'Se acabo la partida. El ganador es {self.clientes[self.cliente_activo].nombre}')
+                c.sock.sendall(f'Se acabo la partida. El ganador es {self.clientes[self.cliente_activo].nombre}'.encode())
                 c.sock.close()
                 
             #El ganador es el activo 
@@ -110,7 +98,7 @@ class Partida:
             print("Se ha terminado la conexión de un cliente, o la partida inesperadamente, no hay puntos")
             return
         
-    def contar_muertos_en_informe(informe:Informe):
+    def contar_muertos_en_informe(self,informe:Informe):
         num=0
         for info in informe.informacion:
             if(type(info) == str):
@@ -136,7 +124,7 @@ class Partida:
         puntos_ganador += 100*jugador_ganador.n_personajes_vivos
         puntos_ganador += 100* jugador_ganador_enemigos_eliminados
         
-        puntos_perdedor += 100 * jugador_perdedor.n_personajes_vivo
+        puntos_perdedor += 100 * jugador_perdedor.n_personajes_vivos
         puntos_perdedor += 100 * jugador_perdedor_enemigos_eliminados
         
         if puntos_perdedor > puntos_ganador:
@@ -152,15 +140,13 @@ class Partida:
     # Actualizar ranking
         self.servidor.ranking.insertar_ordenado(jugador_ganador.nombre, puntos_ganador)
         self.servidor.ranking.insertar_ordenado(jugador_perdedor.nombre, puntos_perdedor)
-    
-        with open('archivo_ranking.txt','a') as archivo:
-           archivo.write(f"Ganador: {jugador_ganador} con {puntos_ganador} puntos\n")
-           archivo.write(f"Perdedor: {jugador_perdedor} con {puntos_perdedor} puntos\n")
-
+        print(f"Ganador:{jugador_ganador.nombre} con {puntos_ganador} puntos\nPerdedor:{jugador_perdedor.nombre} con {puntos_perdedor} puntos")      
 
     # Guardar ranking en archivo
         self.servidor.guardar_ranking('archivo_ranking.txt')
-
+        texto = self.servidor.ranking.to_string()
+        self.clientes[0].sock.sendall(texto.encode())
+        self.clientes[1].sock.sendall(texto.encode())
 
     def pasar_turno(self):
         self.cliente_activo=int(not self.cliente_activo)

@@ -4,8 +4,7 @@ import socket
 import pickle
 from informe import Informe
 
-
-PREPARADO_STR='Preparado'
+PREPARADO_STR='Ready'
 
 DEFAULT_TIMEOUT=70.0
 DEFAULT_PORT=12345
@@ -18,7 +17,7 @@ def ConectarCliente(puerto=DEFAULT_PORT, host=DEFAULT_HOST):
         cliente.connect((host,puerto))
     except (ConnectionError, TimeoutError) :
         CerrarConexion(cliente)
-        print("no se pudo conectar con el servidor, tiempo de espera excedido")
+        print("No se pudo conectar con el servidor, tiempo de espera excedido")
         exit()
     return cliente
 
@@ -62,8 +61,6 @@ def EsperarComienzoPartida(cliente:socket.socket):
             print("Se ha cerrado el cliente")
             CerrarConexion(cliente)
 
-
-
 def BuclePrincipal(jugador:Jugador,cliente:socket.socket,es_turno:bool, nombre:str, nombre_contrincante:str):
     final = False
     tiempo_de_espera_excedido=False
@@ -90,7 +87,7 @@ def BuclePrincipal(jugador:Jugador,cliente:socket.socket,es_turno:bool, nombre:s
                 print("Tiempo de espera excedido, cierre automático de la partida")
                 exit()
             except KeyboardInterrupt:
-                print('se cerró la ejecución')
+                print('Se cerró la ejecución')
                 CerrarConexion(cliente)
                 break
         
@@ -103,7 +100,7 @@ def BuclePrincipal(jugador:Jugador,cliente:socket.socket,es_turno:bool, nombre:s
                     if(accion):
                         accion=accion.decode()
                 except KeyboardInterrupt:
-                    print('se cerró la ejecución')
+                    print('Se cerró la ejecución')
                     CerrarConexion(cliente)
                     break
                 except TimeoutError :
@@ -123,7 +120,6 @@ def BuclePrincipal(jugador:Jugador,cliente:socket.socket,es_turno:bool, nombre:s
         print("")
         es_turno=not es_turno
 
-
 def main():
     #Conectar con el server
     cliente: socket.socket = ConectarCliente()
@@ -137,7 +133,6 @@ def main():
     nombre_contrincante: str = CogerNombreContrincante(mensaje_recibido_contrincante)
     print("Tu contrincante es: "+nombre_contrincante)
     
-    
     #Comenzar Partida
     es_turno:bool = RecibirEsTurno(cliente)
 
@@ -145,7 +140,7 @@ def main():
     input(f'Posiciona tu equipo antes de empezar. Pulsa intro para comenzar.')
     j1 = Jugador(True)
 
-    cliente.sendall(PREPARADO_STR.encode())
+    cliente.sendall('Preparado'.encode())
     
     print("Has posicionado tu equipo. Esperando a que inicie la partida.")
     try:
@@ -157,12 +152,12 @@ def main():
         print("Ha fallado la conexión con el servidor")
         exit()
     limpiar_terminal()
-            
-            
-            
+                   
     BuclePrincipal(j1,cliente,es_turno,nombre,nombre_contrincante)
-        
-    print("se cerró el cliente")
+    print('PUNTUACIONES:')
+    print(cliente.recv(1024).decode())
+
+    print("Se cerró el cliente")
     CerrarConexion(cliente)
     
     
