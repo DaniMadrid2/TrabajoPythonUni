@@ -172,9 +172,9 @@ class Jugador:
     def crear_personaje(self,posicion , clase):
         return clase(posicion)
     
-    def coger_personaje_en_celda(self,celda,equipo):
+    def coger_personaje_en_celda(self,celda:str,equipo):
         for personaje in equipo:
-            if(personaje.posicion == celda):
+            if(personaje.posicion.upper() == celda.upper()):
                 return personaje
         return None
             
@@ -206,7 +206,7 @@ class Jugador:
 
         if accion[0] == "F":
             personaje_herido: Personaje = self.coger_personaje_en_celda(celda,self.equipo)
-            if(personaje_herido):
+            if(type(personaje_herido)==Personaje):
                 personaje_herido.herir(Francotirador().danyo)
                 if(personaje_herido.vida_actual > 0):
                     informacion.poner_info(f"{personaje_herido.nombre} ha sido herido en {celda} [Vida restante:{personaje_herido.vida_actual}]")

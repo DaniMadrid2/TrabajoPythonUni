@@ -138,7 +138,7 @@ def main():
 
     #Comenzar Turno
     input(f'Posiciona tu equipo antes de empezar. Pulsa intro para comenzar.')
-    j1 = Jugador(True)
+    j1 = Jugador(False)
 
     cliente.sendall('Preparado'.encode())
     
