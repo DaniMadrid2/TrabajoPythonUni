@@ -121,7 +121,7 @@ def BuclePrincipal(jugador:Jugador,cliente:socket.socket,es_turno:bool, nombre:s
 
 def main():
     #Conectar con el server
-    cliente: socket.socket = ConectarCliente()
+    cliente: socket.socket = ConectarCliente(port,host)
     print('Bienvenidos a Tactical Battle. A jugar!\n')
     
     nombre: str = pedir_string("Inserte un nombre:")
@@ -161,7 +161,7 @@ def main():
     
     
 
-port=DEFAULT_HOST
+port=DEFAULT_PORT
 host=DEFAULT_HOST
 argumentos = sys.argv[1:]
 
@@ -185,6 +185,6 @@ else:
     print("No has pasado el puerto como argumento. Se asumirá como puerto:",port)
 
 
-if __name__ == 'main':
+if __name__ == '__main__':
     main()
     
