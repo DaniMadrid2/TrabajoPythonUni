@@ -3,6 +3,7 @@ from jugador import Jugador
 import socket
 import pickle
 from informe import Informe
+import sys
 
 PREPARADO_STR='Ready'
 
@@ -160,5 +161,30 @@ def main():
     
     
 
-if __name__ == '__main__':
+port=DEFAULT_HOST
+host=DEFAULT_HOST
+argumentos = sys.argv[1:]
+
+if(len(argumentos)>=1):
+    try:
+        host=argumentos[0]
+    except:
+        print(f'Argumentos nº{1} (Host) inválido, se asumirá el host:',host)
+else:
+    print("No has pasado el host como argumento, se asumirá el host:",host)
+
+
+if(len(argumentos)>=2):
+    try:
+        port=int(argumentos[1])
+        if(port>65535 or port < 0):
+            raise Exception("Puerto inválido")
+    except:
+        print(f'Argumentos nº{2} (puerto) inválido, no está entre 0-65565')
+else:
+    print("No has pasado el puerto como argumento. Se asumirá como puerto:",port)
+
+
+if __name__ == 'main':
     main()
+    

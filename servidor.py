@@ -133,8 +133,24 @@ class Servidor:
         try:
             with open(archivo, "r") as file:
                 for linea in file:
-                    nombre,puntuacion = linea.strip().split(":")
-                    self.ranking.insertar_ordenado(nombre,int(puntuacion))
+                    valores=linea.strip().split(":")
+                    nombre=""
+                    puntuacion=0
+                    oponente=""
+                    fecha=""
+                    if(valores[0]):
+                        nombre=valores[0].replace(" ","")
+                    else: continue
+                    if(valores[1]):
+                        puntuacion=valores[1].replace(" ","")
+                    else: continue
+                    if(valores[2]):
+                        oponente=valores[2].replace(" ","")
+                    if(valores[3]):
+                        fecha=valores[3].replace(" ","")
+
+                    self.ranking.insertar_ordenado(nombre,int(puntuacion),oponente,fecha)
+
         except FileNotFoundError:
             print("Archivo de ranking no encontrado. Se iniciara un nuevo ranking.")
             

@@ -138,8 +138,8 @@ class Partida:
 
     # Actualizar ranking
         fecha=datetime.date.today()
-        self.servidor.ranking.insertar_ordenado(jugador_ganador.nombre, puntos_ganador,jugador_perdedor.nombre,fecha.strftime('%Y-%m-%d %H:%M:%S'))
-        self.servidor.ranking.insertar_ordenado(jugador_perdedor.nombre, puntos_perdedor,jugador_ganador.nombre,fecha.strftime('%Y-%m-%d %H:%M:%S'))
+        self.servidor.ranking.insertar_ordenado(jugador_ganador.nombre, puntos_ganador,jugador_perdedor.nombre,fecha.strftime('%Y-%m-%d'))
+        self.servidor.ranking.insertar_ordenado(jugador_perdedor.nombre, puntos_perdedor,jugador_ganador.nombre,fecha.strftime('%Y-%m-%d'))
         print(f"Ganador:{jugador_ganador.nombre} con {puntos_ganador} puntos\nPerdedor:{jugador_perdedor.nombre} con {puntos_perdedor} puntos")      
 
     # Guardar ranking en archivo

@@ -36,6 +36,6 @@ class ListaDoblementeEnlazada:
         ranking = ""
         actual = self.cabeza
         while actual:
-            ranking += f"{actual.nombre}: {actual.puntuacion}, Oponente: {actual.oponente}, Fecha: {actual.fecha}\n"
+            ranking += f"{actual.nombre}:{actual.puntuacion}:{actual.oponente}:{actual.fecha}\n"
             actual = actual.siguiente
         return ranking
