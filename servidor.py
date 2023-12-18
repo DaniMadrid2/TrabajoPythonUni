@@ -37,19 +37,7 @@ class Servidor:
         self.running = True
         self.cargar_ranking(archivo_ranking)
 
-    def cargar_ranking(self, archivo):
-        try:
-            with open(archivo, "r") as file:
-                for linea in file:
-                    nombre,puntuacion = linea.strip().split(":")
-                    self.ranking.insertar_ordenado(nombre,int(puntuacion))
-        except FileNotFoundError:
-            print("Archivo de ranking no encontrado. Se iniciara un nuevo ranking.")
 
-    def guardar_ranking(self,archivo):
-        with open(archivo,'w') as file:
-            file.write(self.ranking.to_string())
-            
             
     #Entre la lista de Clientes, quita al que tenga el mismo socket que sock_cliente
     def quitar_cliente(self,sock_cliente):
@@ -73,7 +61,7 @@ class Servidor:
             cliente_uno = self.lobby.desencolar()
             cliente_dos = self.lobby.desencolar()
             if cliente_uno and cliente_dos:
-                partida = Partida(cliente_uno, cliente_dos)
+                partida = Partida(cliente_uno, cliente_dos,self)
                 hilo_partida = threading.Thread (target = self.iniciar_partida, args = (partida,))
                 hilo_partida.start()
                 
@@ -89,11 +77,11 @@ class Servidor:
             self.lock.release()
     
     def iniciar_partida(self,partida:Partida):
-        print("partidas +1")
+        print("Partidas +1") #LINK - QUITARLO                   
         self.partidas_activas += 1
-        partida.jugar()
+        partida.jugar(partida.finalizar_partida)
         self.partidas_activas -=1 
-        print("partidas -1")
+        print("Partidas -1")
 
 
     def escuchar_clientes(self):
@@ -129,7 +117,7 @@ class Servidor:
         print("Se ha parado el bucle empezar partidas")
     def start(self):
         self.server.listen()
-        print("servidor a la escucha")
+        print("Servidor a la escucha")
         hilo_escuchar_clientes = threading.Thread (target = self.escuchar_clientes, args = ())
         hilo_empezar_partidas = threading.Thread (target = self.bucle_empezar_partidas, args = ())
         try:
@@ -143,6 +131,21 @@ class Servidor:
             hilo_escuchar_clientes.join()
             hilo_empezar_partidas.join()
 
+    def cargar_ranking(self, archivo):
+        archivo = 'archivo_ranking.txt'
+        try:
+            with open(archivo, "r") as file:
+                for linea in file:
+                    nombre,puntuacion = linea.strip().split(":")
+                    self.ranking.insertar_ordenado(nombre,int(puntuacion))
+        except FileNotFoundError:
+            print("Archivo de ranking no encontrado. Se iniciara un nuevo ranking.")
+    def guardar_ranking(self,archivo):
+        archivo = 'archivo_ranking.txt'
+        with open(archivo,'w') as file:
+            file.write(self.ranking.to_string())
+
+            
 # host = "127.0.0.1"
 host=socket.gethostname()
 port = 12345

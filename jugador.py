@@ -8,13 +8,21 @@ class Jugador:
         self.equipo = self.crear_equipo(default)
         self.informe = Informe()
         self.acciones = [1,2,3,4,5,6,7,8]
-    
+        self.enemigos_eliminados: 0
     
     def mostrar_estado_equipo(self):
         print("---SITUACION DEL EQUIPO---")
         for personaje in self.equipo:
             print(f"{personaje.nombre} esta en {personaje.posicion} [VIDA {personaje.vida_actual}/{personaje.vida_maxima}]")
-    
+    def registro_elimininacion(self):
+        self.enemigos_eliminados += 1
+    def esta_vivo(self,personaje):
+        return personaje.vida_actual >0
+        
+    def num_personajes_vivos(self):
+        return sum(1 for personaje in self.equipo if personaje.esta_vivo())
+    def num_personajes_enemigos_eliminados(self):
+        return self.informe.enemigos_eliminados
 
                 
     def coger_personaje(self,clase,equipo):
@@ -179,7 +187,7 @@ class Jugador:
     def fin_partida(self):
         finDelJuego=True
         for personaje in self.equipo:
-            if(type(personaje) != Medico) and personaje.vida_actual>0:
+            if(type(personaje) != Medico) and (type(personaje)!= Inteligencia) and personaje.vida_actual>0:
                 return False
                 
         return finDelJuego

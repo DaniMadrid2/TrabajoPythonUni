@@ -4,9 +4,14 @@ import pickle
 from informe import Informe
 
 class Partida:
-    def __init__(self,cliente,cliente_dos):
+    def __init__(self,cliente,cliente_dos,servidor):
         self.clientes= (cliente,cliente_dos)
         self.cliente_activo = 0
+        self.num_turnos = 0
+        self.cliente_uno = cliente
+        self.cliente_dos = cliente_dos
+        self.servidor = servidor
+        
     
 
     def jugar(self, fin_partida):
@@ -29,6 +34,7 @@ class Partida:
             print('Empezamos')
             self.clientes[self.cliente_activo].sock.sendall('Empezamos'.encode())
             self.clientes[int(not self.cliente_activo)].sock.sendall('Empezamos'.encode())
+            self.num_turnos = 0
             while not fin:
                 try:
                     datos = self.clientes[self.cliente_activo].sock.recv(1024)
@@ -40,15 +46,16 @@ class Partida:
                     self.clientes[self.cliente_activo].sock.sendall(datos)
                     if(datos):
                         if resultado:
-                            fin = resultado.terminado
+                            fin = resultado['terminado']
                     if not fin:
                         self.pasar_turno()
+                        self.num_turnos += 1 
                 except KeyboardInterrupt:
                     self.clientes[0].close()
                     self.clientes[1].close()
                     print("se cerró la partida (no el sevidor)")
                     return
-                
+
 
             for c in self.clientes:
                 c.sock.sendall(f'Se acabo la partida. El ganador es {self.clientes[self.cliente_activo].nombre}')
@@ -62,6 +69,46 @@ class Partida:
             if(fin_partida):
                 fin_partida()
             return
+        
+    def calcular_puntuacion(self,jugador_ganador, jugador_perdedor):
+        puntos_ganador = 1000 # Puntos base por ganar
+        puntos_perdedor = 0
+        
+        #Puntos por turnos
+        puntos_ganador += max(0,(20-self.num_turnos))*20
+        if self.num_turnos>10:
+            puntos_perdedor += (self.num_turnos-10)*20
+            
+        #Puntos por estado de los equipos      
+        
+        puntos_ganador += 100*jugador_ganador.num_personajes_vivos()
+        puntos_ganador += 100* jugador_ganador.num_personajes_enemigos_eliminados()
+        puntos_perdedor += 100 * jugador_perdedor.num_personajes_vivos()
+        puntos_perdedor += 100 * jugador_perdedor.num_personajes_enemigos_eliminados()
+        
+        if puntos_perdedor > puntos_ganador:
+            puntos_ganador = 1000
+            puntos_perdedor = 900
+
+        return puntos_ganador, puntos_perdedor
+    
+    def finalizar_partida(self,nombre_jugador_ganador,nombre_jugador_perdedor):
+    # Supongamos que determinas quién es el ganador y quién el perdedor
+        puntos_ganador, puntos_perdedor = self.calcular_puntuacion(nombre_jugador_ganador, nombre_jugador_perdedor)
+
+    # Actualizar ranking
+        self.servidor.ranking.insertar_ordenado(nombre_jugador_ganador.nombre, puntos_ganador)
+        self.servidor.ranking.insertar_ordenado(nombre_jugador_perdedor.nombre, puntos_perdedor)
+    
+        with open('archivo_ranking.txt','a') as archivo:
+           archivo.write(f"Ganador: {nombre_jugador_ganador} con {puntos_ganador} puntos\n")
+           archivo.write(f"Perdedor: {nombre_jugador_perdedor} con {puntos_perdedor} puntos\n")
+
+
+    # Guardar ranking en archivo
+        self.servidor.guardar_ranking('archivo_ranking.txt')
+
+
     def pasar_turno(self):
         self.cliente_activo=int(not self.cliente_activo)
 
