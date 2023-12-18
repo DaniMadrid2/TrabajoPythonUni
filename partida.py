@@ -25,6 +25,8 @@ class JugadorPartida:
             except KeyboardInterrupt:
                 break
             except ConnectionResetError:
+                if(callable(self.quitar_punto_fin_partida)):
+                    self.quitar_punto_fin_partida()
                 exit()
 class Partida:
     def __init__(self,cliente,cliente_dos,servidor):
@@ -35,7 +37,8 @@ class Partida:
         self.servidor = servidor
         
 
-    def jugar(self, fin_partida):
+    def jugar(self, fin_partida, quitar_punto_fin_partida):
+        self.quitar_punto_fin_partida=quitar_punto_fin_partida
         try:
             self.clientes[0].sock.sendall(f"La partida va a comenzar. Te vas a enfrentar a {self.clientes[1].nombre}".encode())
             self.clientes[1].sock.sendall(f"La partida va a comenzar. Te vas a enfrentar a {self.clientes[0].nombre}".encode())
@@ -92,10 +95,14 @@ class Partida:
             
         except (ConnectionError, TimeoutError, ConnectionResetError):
             print("Se ha terminado la conexión de un cliente, o la partida inesperadamente, no hay puntos")
+            if(callable(self.quitar_punto_fin_partida)):
+                self.quitar_punto_fin_partida()
             exit()
         except KeyboardInterrupt:
             print("Se ha terminado la conexión de un cliente, o la partida inesperadamente, no hay puntos")
             return
+        if(callable(self.quitar_punto_fin_partida)):
+                self.quitar_punto_fin_partida()
         
     def contar_muertos_en_informe(self,informe:Informe):
         num=0

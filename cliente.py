@@ -105,6 +105,7 @@ def BuclePrincipal(jugador:Jugador,cliente:socket.socket,es_turno:bool, nombre:s
                 except TimeoutError :
                     print("Tiempo de espera excedido, cierre automático de la partida")
                     tiempo_de_espera_excedido=True
+                    exit()
                     
             if( not tiempo_de_espera_excedido):
                 informe=jugador.recibir_accion(accion)

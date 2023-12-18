@@ -60,7 +60,7 @@ class Servidor:
             cliente_dos = self.lobby.desencolar()
             if cliente_uno and cliente_dos:
                 partida = Partida(cliente_uno, cliente_dos,self)
-                hilo_partida = threading.Thread (target = self.iniciar_partida, args = (partida,))
+                hilo_partida = threading.Thread(target = self.iniciar_partida, args = (partida,))
                 hilo_partida.start()
                 
         except (ConnectionError, TimeoutError):
@@ -74,10 +74,13 @@ class Servidor:
         finally:
             self.lock.release()
     
+    def quitar_punto_fin_partida(self):
+        self.partidas_activas -=1 
+    
     def iniciar_partida(self,partida:Partida):
         self.partidas_activas += 1
-        partida.jugar(partida.finalizar_partida)
-        self.partidas_activas -=1 
+        partida.jugar(partida.finalizar_partida, self.quitar_punto_fin_partida)
+        
 
     def escuchar_clientes(self):
         cliente=False
