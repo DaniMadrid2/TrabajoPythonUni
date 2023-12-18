@@ -206,7 +206,7 @@ class Jugador:
 
         if accion[0] == "F":
             personaje_herido: Personaje = self.coger_personaje_en_celda(celda,self.equipo)
-            if(type(personaje_herido)==Personaje):
+            if(isinstance(personaje_herido,Personaje)):
                 personaje_herido.herir(Francotirador().danyo)
                 if(personaje_herido.vida_actual > 0):
                     informacion.poner_info(f"{personaje_herido.nombre} ha sido herido en {celda} [Vida restante:{personaje_herido.vida_actual}]")

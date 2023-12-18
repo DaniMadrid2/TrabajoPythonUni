@@ -145,12 +145,16 @@ class Partida:
 
     # Actualizar ranking
         fecha=datetime.date.today()
-        self.servidor.ranking.insertar_ordenado(jugador_ganador.nombre, puntos_ganador,jugador_perdedor.nombre,fecha.strftime('%Y-%m-%d'))
-        self.servidor.ranking.insertar_ordenado(jugador_perdedor.nombre, puntos_perdedor,jugador_ganador.nombre,fecha.strftime('%Y-%m-%d'))
+        self.servidor.ranking.insertar_ordenado(jugador_ganador.nombre, puntos_ganador,jugador_perdedor.nombre,fecha.strftime('%Y-%m-%d-%H-%M'))
+        self.servidor.ranking.insertar_ordenado(jugador_perdedor.nombre, puntos_perdedor,jugador_ganador.nombre,fecha.strftime('%Y-%m-%d-%H-%M'))
         print(f"Ganador:{jugador_ganador.nombre} con {puntos_ganador} puntos\nPerdedor:{jugador_perdedor.nombre} con {puntos_perdedor} puntos")      
 
     # Guardar ranking en archivo
         self.servidor.guardar_ranking('archivo_ranking.txt')
+    #Enviar puntuaciones
+        jugador_ganador.sock.sendall((str(puntos_ganador)).encode())
+        jugador_perdedor.sock.sendall((str(texto_ranking)).encode())
+        
     # Enviar Ranking
         texto_ranking = self.servidor.ranking.to_string()
         

@@ -154,7 +154,10 @@ def main():
     limpiar_terminal()
                    
     BuclePrincipal(j1,cliente,es_turno,nombre,nombre_contrincante)
-    print('PUNTUACIONES:')
+    print()
+    print('TU PUNTUACIÓN:')
+    print(cliente.recv(1024).decode())
+    print('PUNTUACIONES DEL RAKING:')
     print(cliente.recv(1024).decode())
 
     
