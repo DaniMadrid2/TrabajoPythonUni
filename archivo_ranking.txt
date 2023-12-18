@@ -1,6 +1,0 @@
-Pepe: 1920
-Dannyel: 1920
-Daniel: 1820
-Angel: 300
-Maxwell: 200
-Just Neo: 200

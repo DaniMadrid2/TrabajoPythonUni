@@ -3,6 +3,7 @@ import threading
 from partida import Partida
 from ranking import ListaDoblementeEnlazada
 from cola import Cola
+import sys
 
 class Cliente:
     def __init__(self,sock,nombre):
@@ -34,7 +35,7 @@ class Servidor:
         self.max_partidas = max_partidas
         self.ranking = ListaDoblementeEnlazada()
         self.running = True
-        self.cargar_ranking(archivo_ranking)
+        self.cargar_ranking(fichero_ranking)
             
     #Entre la lista de Clientes, quita al que tenga el mismo socket que sock_cliente
     def quitar_cliente(self,sock_cliente):
@@ -145,8 +146,33 @@ class Servidor:
 # host = "127.0.0.1"
 host=socket.gethostname()
 port = 12345
-max_partidas = int(input("Indica el máximo de partidas del servidor:")) or 2
-archivo_ranking = "ranking.txt"
+
+argumentos = sys.argv[1:]
+if(len(argumentos)>=1):
+    try:
+        port=int(argumentos[0])
+        if(port>65535 or port < 0):
+            raise Exception("Puerto inválido")
+    except:
+        print(f'Argumentos nº{1} inválido, no está entre 0-65565')
+else:
+    print("No has pasado el puerto como argumento. Se asumirá como puerto:",port)
+
+if(len(argumentos)>=2):
+    try:
+        max_partidas=int(argumentos[1])
+    except:
+        print(f'Argumentos nº{2} inválido, no está')
+else:
+    max_partidas = int(input("Indica el máximo de partidas del servidor:")) or 2
+
+if(len(argumentos)>=3 and argumentos[2]):
+    port=argumentos[2]
+else:
+    fichero_ranking = "ranking.txt"
+    print("No has pasado el fichero de ranking. Se asumirá por defecto:",fichero_ranking)
+
+
 servidor = Servidor(host,port,max_partidas)
 servidor.start()
 

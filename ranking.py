@@ -1,20 +1,20 @@
-import datetime
+
 class NodoRanking:
-    def __init__(self, nombre, puntuacion, oponente, fecha = None):
+    def __init__(self, nombre, puntuacion, oponente="", fechastr = ""):
         self.nombre = nombre
         self.puntuacion = puntuacion
         self.anterior = None
         self.siguiente = None
         self.oponente = oponente
-        self.fecha = fecha if fecha else datetime.datetime.now()
+        self.fecha = fechastr
 
 class ListaDoblementeEnlazada:
     def __init__(self):
         self.cabeza = None
         self.cola = None
 
-    def insertar_ordenado(self, nombre, puntuacion,oponente):
-        nuevo_nodo = NodoRanking(nombre, puntuacion)
+    def insertar_ordenado(self, nombre, puntuacion,oponente="",fecha=""):
+        nuevo_nodo = NodoRanking(nombre, puntuacion,oponente,fecha)
         if not self.cabeza or nuevo_nodo.puntuacion >= self.cabeza.puntuacion:
             nuevo_nodo.siguiente = self.cabeza
             if self.cabeza:
@@ -36,6 +36,6 @@ class ListaDoblementeEnlazada:
         ranking = ""
         actual = self.cabeza
         while actual:
-            ranking += f"{actual.nombre}: {actual.puntuacion}, Oponente: {actual.oponente}, Fecha: {actual.fecha.strftime('%Y-%m-%d %H:%M:%S')}\n"
+            ranking += f"{actual.nombre}: {actual.puntuacion}, Oponente: {actual.oponente}, Fecha: {actual.fecha}\n"
             actual = actual.siguiente
         return ranking

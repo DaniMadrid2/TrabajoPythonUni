@@ -206,16 +206,17 @@ class Jugador:
 
         if accion[0] == "F":
             personaje_herido: Personaje = self.coger_personaje_en_celda(celda,self.equipo)
-            personaje_herido.herir(Francotirador().danyo)
-            if(personaje_herido.vida_actual > 0):
-                informacion.poner_info(f"{personaje_herido.nombre} ha sido herido en {celda} [Vida restante:{personaje_herido.vida_actual}]")
-            else:
-                informacion.poner_info(f"{personaje_herido.nombre} ha sido eliminado") 
+            if(personaje_herido):
+                personaje_herido.herir(Francotirador().danyo)
+                if(personaje_herido.vida_actual > 0):
+                    informacion.poner_info(f"{personaje_herido.nombre} ha sido herido en {celda} [Vida restante:{personaje_herido.vida_actual}]")
+                else:
+                    informacion.poner_info(f"{personaje_herido.nombre} ha sido eliminado") 
 
         else:
             hay_personaje_en_area=False
             for personaje in self.equipo:
-                if personaje.esta_en_area(celda):
+                if personaje and personaje.esta_en_area(celda):
                     hay_personaje_en_area=True
                     if accion[0] == "A":
                         personaje.herir(Artillero().danyo)
