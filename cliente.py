@@ -7,13 +7,13 @@ from informe import Informe
 
 PREPARADO_STR='Preparado'
 
-
+DEFAULT_TIMEOUT=70.0
 DEFAULT_PORT=12345
 DEFAULT_HOST = socket.gethostname()
 
 def ConectarCliente(puerto=DEFAULT_PORT, host=DEFAULT_HOST):
     cliente: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    cliente.settimeout(70.0) #Añadimos un timeout de minuto y 10 segundos
+    cliente.settimeout(DEFAULT_TIMEOUT) #Añadimos un timeout de minuto y 10 segundos
     try:
         cliente.connect((host,puerto))
     except (ConnectionError, TimeoutError) :
@@ -25,13 +25,14 @@ def ConectarCliente(puerto=DEFAULT_PORT, host=DEFAULT_HOST):
 def EsperarConexionContrincante(nombre:str, cliente:socket.socket):
     cliente.sendall(nombre.encode()) #Enviamos nombre
     
+    cliente.settimeout(None)
     mensaje_recibido = cliente.recv(1024).decode()
     esperando=mensaje_recibido.startswith('Esperando')
     
     if esperando:
         print('Estás en el lobby esperando a que otro cliente se una a la partida')
         mensaje_recibido = cliente.recv(1024).decode()
-
+    cliente.settimeout(DEFAULT_TIMEOUT)
     return mensaje_recibido
 
 def RecibirEsTurno(cliente:socket.socket):
@@ -46,19 +47,20 @@ def CerrarConexion(cliente:socket.socket):
     cliente.close()
 
 def RecibirEmpezamos(cliente:socket.socket):
-    try:
-        datos=cliente.recv(1024)
-        if(not datos): return False
-        datos=datos.decode()
-        return datos.startswith("Empezamos")
-    except KeyboardInterrupt:
-        print("Se ha cerrado el cliente mientras empezaba")
-        CerrarConexion(cliente)
-        exit()
+    cliente.settimeout(None)
+    datos=cliente.recv(1024)
+    cliente.settimeout(DEFAULT_TIMEOUT)
+    if(not datos): return False
+    datos=datos.decode()
+    return datos.startswith("Empezamos")
 def EsperarComienzoPartida(cliente:socket.socket):
     empezamos=False
     while(not empezamos):
-        empezamos=RecibirEmpezamos(cliente)
+        try:
+            empezamos=RecibirEmpezamos(cliente)
+        except KeyboardInterrupt:
+            print("Se ha cerrado el cliente")
+            CerrarConexion(cliente)
 
 
 
@@ -88,11 +90,12 @@ def BuclePrincipal(jugador:Jugador,cliente:socket.socket,es_turno:bool, nombre:s
                 print("Tiempo de espera excedido, cierre automático de la partida")
                 exit()
             except KeyboardInterrupt:
+                print('se cerró la ejecución')
                 CerrarConexion(cliente)
                 break
         
         else:
-            print(f'Es el turno del oponente ({nombre_contrincante}), esperandoo...')
+            print(f'Es el turno de ({nombre_contrincante}), esperando...')
             accion=""
             while(accion==""):
                 try:
@@ -102,11 +105,10 @@ def BuclePrincipal(jugador:Jugador,cliente:socket.socket,es_turno:bool, nombre:s
                 except KeyboardInterrupt:
                     print('se cerró la ejecución')
                     CerrarConexion(cliente)
+                    break
                 except TimeoutError :
                     print("Tiempo de espera excedido, cierre automático de la partida")
                     tiempo_de_espera_excedido=True
-                finally:
-                    exit()
                     
             if( not tiempo_de_espera_excedido):
                 informe=jugador.recibir_accion(accion)
@@ -117,17 +119,20 @@ def BuclePrincipal(jugador:Jugador,cliente:socket.socket,es_turno:bool, nombre:s
                 final=informe.terminado
                 if(final):
                     print(f'Se acabo la partida. El ganador es {nombre_contrincante}')
-            
+        
+        print("")
         es_turno=not es_turno
 
 
 def main():
     #Conectar con el server
     cliente: socket.socket = ConectarCliente()
-        
+    print('Bienvenidos a Tactical Battle. A jugar!\n')
+    
     nombre: str = pedir_string("Inserte un nombre:")
     
     #Esperando 
+    print("Esperando la conexión con el contrincante")
     mensaje_recibido_contrincante: str = EsperarConexionContrincante(nombre,cliente)
     nombre_contrincante: str = CogerNombreContrincante(mensaje_recibido_contrincante)
     print("Tu contrincante es: "+nombre_contrincante)
@@ -137,14 +142,20 @@ def main():
     es_turno:bool = RecibirEsTurno(cliente)
 
     #Comenzar Turno
-    print('Bienvenidos a Tactical Battle. A jugar!\n')
-    input('Turno del Jugador 1. Pulsa intro para comenzar')
+    input(f'Posiciona tu equipo antes de empezar. Pulsa intro para comenzar.')
     j1 = Jugador(True)
 
     cliente.sendall(PREPARADO_STR.encode())
-
     
-    EsperarComienzoPartida(cliente)
+    print("Has posicionado tu equipo. Esperando a que inicie la partida.")
+    try:
+        EsperarComienzoPartida(cliente)
+    except KeyboardInterrupt:
+        print("Se ha cerrado el cliente")
+        CerrarConexion(cliente)
+    except ConnectionError:
+        print("Ha fallado la conexión con el servidor")
+        exit()
     limpiar_terminal()
             
             

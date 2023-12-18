@@ -9,17 +9,6 @@ class Cliente:
         self.nombre = nombre
         self.sock:socket.socket = sock
 
-    def ready(self):
-        fin = False
-
-        while not fin:
-            try:
-                datos = self.sock.recv(1024).decode()
-                fin = datos.startswith('Preparado')
-            except KeyboardInterrupt:
-                break
-            except ConnectionResetError:
-                exit()
     def close(self):
         self.sock.close()
 
@@ -149,7 +138,7 @@ class Servidor:
 # host = "127.0.0.1"
 host=socket.gethostname()
 port = 12345
-max_partidas = 2
+max_partidas = int(input("Indica el máximo de partidas del servidor ")) or 2
 archivo_ranking = "ranking.txt"
 servidor = Servidor(host,port,max_partidas)
 servidor.start()

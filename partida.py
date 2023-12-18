@@ -2,15 +2,40 @@ import random
 import threading
 import pickle
 from informe import Informe
+import socket
+
+
+NUM_PERSONAJES_INICIO=4
+class JugadorPartida:
+    def __init__(self,sock,nombre,n_vivos=NUM_PERSONAJES_INICIO):
+        self.n_personajes_vivos=n_vivos
+        self.nombre=nombre
+        self.sock:socket.socket=sock
+        
+    #callback que espera a recibir Preparado cuando un cliente termina de elegir su equipo
+    def ready(self):
+        fin = False
+
+        while not fin:
+            try:
+                print("Escuchando preparado") #LINK - 
+                datos = self.sock.recv(1024).decode()
+                print("Se ha escuchado ",datos) #LINK - 
+                fin = datos.startswith('Preparado')
+            except KeyboardInterrupt:
+                break
+            except ConnectionResetError:
+                exit()
+        
 
 class Partida:
     def __init__(self,cliente,cliente_dos,servidor):
-        self.clientes= (cliente,cliente_dos)
+        self.clientes= (JugadorPartida(cliente.sock,cliente.nombre,NUM_PERSONAJES_INICIO)
+                        ,JugadorPartida(cliente_dos.sock,cliente_dos.nombre,NUM_PERSONAJES_INICIO))
         self.cliente_activo = 0
         self.num_turnos = 0
-        self.cliente_uno = cliente
-        self.cliente_dos = cliente_dos
         self.servidor = servidor
+        
         
     
 
@@ -23,6 +48,7 @@ class Partida:
             
             self.clientes[self.cliente_activo].sock.sendall('Es tu turno'.encode())
             self.clientes[int(not self.cliente_activo)].sock.sendall('No tu turno'.encode())
+            self.clientes[0].sock.recv(1024).decode()
             prep1 = threading.Thread(target=self.clientes[0].ready, args=())
             prep2 = threading.Thread(target=self.clientes[1].ready, args=())
             prep1.start()
@@ -34,6 +60,9 @@ class Partida:
             print('Empezamos')
             self.clientes[self.cliente_activo].sock.sendall('Empezamos'.encode())
             self.clientes[int(not self.cliente_activo)].sock.sendall('Empezamos'.encode())
+            
+            
+            self.n_personajes_vivos=(4,4) #número de personajes vivos de cada jugador
             self.num_turnos = 0
             while not fin:
                 try:
@@ -41,12 +70,19 @@ class Partida:
                     self.clientes[int(not self.cliente_activo)].sock.sendall(datos)
                     
                     datos = self.clientes[int(not self.cliente_activo)].sock.recv(1024)
-                    if(not datos): datos=pickle.dumps({"terminado":False})
+                    if(not datos): datos=pickle.dumps(Informe(-1)) #Crea un informe vacío
                     resultado:Informe = pickle.loads(datos)
                     self.clientes[self.cliente_activo].sock.sendall(datos)
                     if(datos):
-                        if resultado:
-                            fin = resultado['terminado']
+                        if resultado and type(resultado) == Informe:
+                            fin = resultado.terminado
+                            n_muertos=self.contar_muertos_en_informe(resultado)
+                            self.clientes[int(not self.cliente_activo)].n_personajes_vivos-=n_muertos
+                            
+                            print("Personajes vivos",self.n_personajes_vivos) #LINK - 
+                            
+                            if(self.n_personajes_vivos[int(not self.cliente_activo)]<0):
+                                print("El número de personajes vivos es menor que 0!")
                     if not fin:
                         self.pasar_turno()
                         self.num_turnos += 1 
@@ -60,17 +96,29 @@ class Partida:
             for c in self.clientes:
                 c.sock.sendall(f'Se acabo la partida. El ganador es {self.clientes[self.cliente_activo].nombre}')
                 c.sock.close()
+                
+            #El ganador es el activo 
+            fin_partida(
+                self.clientes[self.cliente_activo],
+                self.clientes[int(not self.cliente_activo)]
+            )
+            
         except (ConnectionError, TimeoutError, ConnectionResetError):
-            if(fin_partida):
-                fin_partida()
-                print("Se ha terminado la conexión de un cliente, o la partida inesperadamente")
+            print("Se ha terminado la conexión de un cliente, o la partida inesperadamente, no hay puntos")
             exit()
         except KeyboardInterrupt:
-            if(fin_partida):
-                fin_partida()
+            print("Se ha terminado la conexión de un cliente, o la partida inesperadamente, no hay puntos")
             return
         
-    def calcular_puntuacion(self,jugador_ganador, jugador_perdedor):
+    def contar_muertos_en_informe(informe:Informe):
+        num=0
+        for info in informe.informacion:
+            if(type(info) == str):
+                if(info.find("ha sido eliminado")!=-1):
+                    num+=1
+        return num
+    
+    def calcular_puntuacion(self,jugador_ganador:JugadorPartida, jugador_perdedor:JugadorPartida):
         puntos_ganador = 1000 # Puntos base por ganar
         puntos_perdedor = 0
         
@@ -81,10 +129,15 @@ class Partida:
             
         #Puntos por estado de los equipos      
         
-        puntos_ganador += 100*jugador_ganador.num_personajes_vivos()
-        puntos_ganador += 100* jugador_ganador.num_personajes_enemigos_eliminados()
-        puntos_perdedor += 100 * jugador_perdedor.num_personajes_vivos()
-        puntos_perdedor += 100 * jugador_perdedor.num_personajes_enemigos_eliminados()
+        #nº enemigos eliminados= 4 - oponente.n_personajes_vivos
+        jugador_ganador_enemigos_eliminados=NUM_PERSONAJES_INICIO-jugador_perdedor.n_personajes_vivos
+        jugador_perdedor_enemigos_eliminados=NUM_PERSONAJES_INICIO-jugador_ganador.n_personajes_vivos
+        
+        puntos_ganador += 100*jugador_ganador.n_personajes_vivos
+        puntos_ganador += 100* jugador_ganador_enemigos_eliminados
+        
+        puntos_perdedor += 100 * jugador_perdedor.n_personajes_vivo
+        puntos_perdedor += 100 * jugador_perdedor_enemigos_eliminados
         
         if puntos_perdedor > puntos_ganador:
             puntos_ganador = 1000
@@ -92,17 +145,17 @@ class Partida:
 
         return puntos_ganador, puntos_perdedor
     
-    def finalizar_partida(self,nombre_jugador_ganador,nombre_jugador_perdedor):
+    def finalizar_partida(self,jugador_ganador:JugadorPartida,jugador_perdedor:JugadorPartida):
     # Supongamos que determinas quién es el ganador y quién el perdedor
-        puntos_ganador, puntos_perdedor = self.calcular_puntuacion(nombre_jugador_ganador, nombre_jugador_perdedor)
+        puntos_ganador, puntos_perdedor = self.calcular_puntuacion(jugador_ganador, jugador_perdedor)
 
     # Actualizar ranking
-        self.servidor.ranking.insertar_ordenado(nombre_jugador_ganador.nombre, puntos_ganador)
-        self.servidor.ranking.insertar_ordenado(nombre_jugador_perdedor.nombre, puntos_perdedor)
+        self.servidor.ranking.insertar_ordenado(jugador_ganador.nombre, puntos_ganador)
+        self.servidor.ranking.insertar_ordenado(jugador_perdedor.nombre, puntos_perdedor)
     
         with open('archivo_ranking.txt','a') as archivo:
-           archivo.write(f"Ganador: {nombre_jugador_ganador} con {puntos_ganador} puntos\n")
-           archivo.write(f"Perdedor: {nombre_jugador_perdedor} con {puntos_perdedor} puntos\n")
+           archivo.write(f"Ganador: {jugador_ganador} con {puntos_ganador} puntos\n")
+           archivo.write(f"Perdedor: {jugador_perdedor} con {puntos_perdedor} puntos\n")
 
 
     # Guardar ranking en archivo

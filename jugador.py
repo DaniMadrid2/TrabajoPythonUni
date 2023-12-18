@@ -241,12 +241,12 @@ class Jugador:
         else:
             print("---NO HAY RESULTADOS DE LA ACCION---")
     def mostrar_informe(self, informe):
+        print("---INFORME---")
         if(informe and isinstance(informe,Informe) and informe.hay_informe()):
-            print("---INFORME---")
             if(informe.hay_informe()):
                 informe.escribir_informe()
-            else:
-                print("Nada que reportar")
+        else:
+            print("Nada que reportar")
 
     def pasar_turno_equipo(self):
         for personaje in self.equipo:
