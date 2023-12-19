@@ -157,7 +157,7 @@ def main():
     print()
     print('TU PUNTUACIÓN:')
     print(cliente.recv(1024).decode())
-    print('PUNTUACIONES DEL RAKING:')
+    print('PUNTUACIONES DEL RANKING:')
     print(cliente.recv(1024).decode())
 
     
