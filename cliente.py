@@ -7,7 +7,7 @@ import sys
 
 PREPARADO_STR='Ready'
 
-DEFAULT_TIMEOUT=70.0
+DEFAULT_TIMEOUT=95.0
 DEFAULT_PORT=12345
 DEFAULT_HOST = socket.gethostname()
 

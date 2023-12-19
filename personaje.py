@@ -84,8 +84,6 @@ class Medico(Personaje):
         personaje_a_curar.vida_actual = personaje_a_curar.vida_maxima
         return "M"+ (personaje_a_curar.posicion)
 
-        
-
 class Inteligencia(Personaje):
     def __init__(self, posicion="A1"):
         super().__init__("Inteligencia",2,0,posicion)

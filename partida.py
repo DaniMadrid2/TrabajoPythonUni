@@ -5,7 +5,6 @@ from informe import Informe
 import socket
 import datetime
 
-
 NUM_PERSONAJES_INICIO=4
 class JugadorPartida:
     def __init__(self,sock,nombre,n_vivos=NUM_PERSONAJES_INICIO):
@@ -153,7 +152,7 @@ class Partida:
         self.servidor.guardar_ranking('archivo_ranking.txt')
     #Enviar puntuaciones
         jugador_ganador.sock.sendall((str(puntos_ganador)).encode())
-        jugador_perdedor.sock.sendall((str(texto_ranking)).encode())
+        jugador_perdedor.sock.sendall((str(puntos_perdedor)).encode())
         
     # Enviar Ranking
         texto_ranking = self.servidor.ranking.to_string()
